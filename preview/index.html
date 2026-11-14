@@ -1783,7 +1783,7 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
      <summary>보호구역·정류소 데이터 상태 및 출처</summary>
      <div id="school50Info" role="status">학교 실제 위치 기반 가상 참고 원 검증 중…</div>
      <div id="busStopInfo" role="status">서울시 정류소 데이터 확인 중…</div>
-     <p><b>공개 데모 주의:</b> 학교·어린이집 위치 참고, 교육시설 토지피복·건물 윤곽을 사용합니다. 표시되는 학교·유아시설 30m/40m는 모델 참고영역입니다. 학교 절대보호 50m는 개인 파일을 직접 불러올 때에만 분석에 반영되며 최신 법적 지정 여부와 별개입니다. 정류장은 서울시 공식 위치를 기본으로 표시하고 일부 화면 위치는 사용자가 보정했습니다. 10m 원은 지정 고시 확인 전 분석 참고영역입니다.</p>
+     <p><b>공개 데모 주의:</b> 학교·어린이집 위치 참고, 교육시설 토지피복·건물 윤곽을 사용합니다. 표시되는 학교·유아시설 30m/40m는 모델 참고영역입니다. 학교 절대보호 50m는 개인 파일을 직접 불러올 때에만 분석에 반영되며 최신 법적 지정 여부와 별개입니다. 정류장은 서울시 공식 좌표를 보존하며 일부 실제 표시 위치를 사용자가 보정했습니다. 지도 10m 원과 자동 후보지 참고 제외는 동일한 위치를 사용합니다. 지정 고시를 검증한 법적 금지구역은 아닙니다.</p>
      <p>출처와 실제/가상 구분: <a href="DATA_SOURCES_PUBLIC.md" target="_blank" rel="noopener">공개 데모 자료별 출처 안내</a>.</p>
      <a href="https://data.seoul.go.kr/dataList/OA-15067/A/1/datasetView.do" target="_blank" rel="noopener noreferrer">서울시 버스정류소 원본</a>
    </details>
@@ -2019,14 +2019,16 @@ else kakao.maps.load(async function(){
  const overlays={schools:[],school50:[],busStops:[],childcare:[],parks:[],playgrounds:[],heat:[],candidates:[],roads:[],footpaths:[],rivers:[],landcover:[]}, visible={schools:true,school50:false,busStops:true,childcare:true,parks:true,playgrounds:true,heat:false,roads:false,footpaths:false,rivers:false,landcover:false};
  let school50Features=[], school50State='unavailable';
  let busStopFeatures=[],busStopState='loading',busStopMetadata=null;
- // Only user-controlled on-screen display corrections; NEVER legal geometry or selection score.
+ // Official coordinates are preserved in GeoJSON. The 28 reviewed on-map coordinates
+ // are used consistently for the displayed 10m circles and research-only candidate exclusions.
+ // This does NOT establish a legally designated no-smoking boundary.
  // Local fallback: ONLY the 28 user-reviewed stops. Complete official dataset is always preferred.
  // The fallback has no station names and is not a legal or complete bus-stop inventory.
- const BUS_ALIGN_KEY='smokespot_bus_stop_visual_positions_public_v9';
- // User-verified on-screen positions (28 stops); neither legal reference points nor score inputs.
- // Public default: 28 reviewed positions. Use a NEW storage namespace so stale v1 corrections do not override the restored public default.
- // Only changes made from v9 onward can override this baseline for the individual visitor.
- const BUS_ALIGNMENT_BACKUP={"110000263|11364|127.0749325,37.6508109":[127.07505609239374,37.650785737972186],"110000357|11458|127.0722916,37.6512470":[127.07238509341475,37.65126943292021],"110000258|11359|127.0718008,37.6505400":[127.07181210609386,37.650512957509946],"110000313|11414|127.0768820,37.6497970":[127.07688820862937,37.65000971279936],"110000260|11361|127.0739505,37.6528902":[127.07386527666279,37.652658281191975],"110000248|11349|127.0764226,37.6488502":[127.07649042467212,37.64886347045039],"110000247|11348|127.0769381,37.6517261":[127.07686723310515,37.65164726277844],"110000259|11360|127.0709042,37.6502087":[127.070956339156,37.65028147223136],"110000298|11399|127.0774015,37.6505432":[127.07754034814438,37.650556633084214],"110000299|11400|127.0776284,37.6507368":[127.07750654955211,37.650745861695924],"110000253|11354|127.0736281,37.6477075":[127.07369040365444,37.64770748922225],"110000297|11398|127.0775629,37.6518670":[127.07760414937826,37.65197563899093],"110000254|11355|127.0738318,37.6475069":[127.07369040810526,37.647711994136145],"110000117|11217|127.0707160,37.6524976":[127.07059585261715,37.65252964054843],"110000256|11357|127.0712793,37.6477684":[127.07135057405554,37.64779902589502],"110000312|11413|127.0775774,37.6480879":[127.07748108727709,37.648051939088695],"110000311|11412|127.0774280,37.6478370":[127.0775205597563,37.64787171650287],"110000255|11356|127.0712087,37.6476009":[127.0712427586469,37.64762339930046],"110000116|11216|127.0694249,37.6515821":[127.06943906542374,37.65154375108651],"110000252|11353|127.0741270,37.6465375":[127.07414251865592,37.64656295700637],"110000251|11352|127.0742898,37.6465291":[127.07430681116524,37.646553843805286],"110000246|11347|127.0691543,37.6499131":[127.06908067108007,37.649989766017605],"110000118|11218|127.0715549,37.6540788":[127.07155478496,37.653961624965646],"110000119|11219|127.0718383,37.6542272":[127.07173624849625,37.65411468175977],"110000249|11350|127.0763721,37.6467215":[127.0764148915125,37.64703001841995],"110000278|11379|127.0690665,37.6494835":[127.06904628406224,37.649566324119924],"110000314|11415|127.0767460,37.6467573":[127.07675481382203,37.647016283002216],"110000264|11365|127.0766007,37.6544907":[127.07664353961304,37.654512532658316]};
+ const BUS_ALIGN_KEY='smokespot_bus_stop_visual_positions_public_v11';
+ // User-reviewed reference positions (28 stops). Never overwrite official source coordinates.
+ // Public default: 28 positions exported from the user's final local review (v11). Use a fresh namespace so older browser overrides do not silently undo this alignment.
+ // Only changes made from v11 onward can override this baseline for the individual visitor.
+ const BUS_ALIGNMENT_BACKUP={"110000263|11364|127.0749325,37.6508109":[127.07505609239374,37.650785737972186],"110000357|11458|127.0722916,37.6512470":[127.07238509341475,37.65126943292021],"110000258|11359|127.0718008,37.6505400":[127.07181210609386,37.650512957509946],"110000313|11414|127.0768820,37.6497970":[127.07688820862937,37.65000971279936],"110000260|11361|127.0739505,37.6528902":[127.07386527666279,37.652658281191975],"110000248|11349|127.0764226,37.6488502":[127.07649042467212,37.64886347045039],"110000247|11348|127.0769381,37.6517261":[127.07686723310515,37.65164726277844],"110000259|11360|127.0709042,37.6502087":[127.070956339156,37.65028147223136],"110000298|11399|127.0774015,37.6505432":[127.07754034814438,37.650556633084214],"110000299|11400|127.0776284,37.6507368":[127.07750654955211,37.650745861695924],"110000253|11354|127.0736281,37.6477075":[127.07368474022422,37.64770974521803],"110000297|11398|127.0775629,37.6518670":[127.07760414937826,37.65197563899093],"110000254|11355|127.0738318,37.6475069":[127.07380636904924,37.64752496760127],"110000117|11217|127.0707160,37.6524976":[127.07059585261715,37.65252964054843],"110000256|11357|127.0712793,37.6477684":[127.07135057405554,37.64779902589502],"110000312|11413|127.0775774,37.6480879":[127.07748108727709,37.648051939088695],"110000311|11412|127.0774280,37.6478370":[127.0775205597563,37.64787171650287],"110000255|11356|127.0712087,37.6476009":[127.0712427586469,37.64762339930046],"110000116|11216|127.0694249,37.6515821":[127.06943906542374,37.65154375108651],"110000252|11353|127.0741270,37.6465375":[127.07414251865592,37.64656295700637],"110000251|11352|127.0742898,37.6465291":[127.07430681116524,37.646553843805286],"110000246|11347|127.0691543,37.6499131":[127.06908067108007,37.649989766017605],"110000118|11218|127.0715549,37.6540788":[127.07155478496,37.653961624965646],"110000119|11219|127.0718383,37.6542272":[127.07173624849625,37.65411468175977],"110000249|11350|127.0763721,37.6467215":[127.0764148915125,37.64703001841995],"110000278|11379|127.0690665,37.6494835":[127.06904628406224,37.649566324119924],"110000314|11415|127.0767460,37.6467573":[127.07675481382203,37.647016283002216],"110000264|11365|127.0766007,37.6544907":[127.07664353961304,37.654512532658316]};
  let busVisualPositions={...BUS_ALIGNMENT_BACKUP};
  try{
    const rawSaved=localStorage.getItem(BUS_ALIGN_KEY);
@@ -2191,9 +2193,8 @@ else kakao.maps.load(async function(){
    school50LocalStatus.textContent='공개판: 학교 50m 실제 도형 미적용 · 후보지 점수는 시연 전용';
  });
 
- // v3.7.21.2: Seoul official stop centers remain immutable. Screen-only alignment
- // is manually calibrated against Kakao's basemap bus icons (those POI coordinates
- // are not exposed through the public Kakao Maps JavaScript API).
+ // Seoul official source coordinates remain immutable. User-reviewed visible positions
+ // also drive the 10m research-only exclusion circles (not a verified legal designation).
  function busDistanceMeters(a,b){
    const R=6371008.8,rad=Math.PI/180, dLat=(b[1]-a[1])*rad,dLon=(b[0]-a[0])*rad;
    const q=Math.sin(dLat/2)**2+Math.cos(a[1]*rad)*Math.cos(b[1]*rad)*Math.sin(dLon/2)**2;
@@ -2207,9 +2208,44 @@ else kakao.maps.load(async function(){
    const origin=f.geometry.coordinates, saved=busVisualPositions[busKey(f)];
    return Array.isArray(saved)&&saved.length===2&&saved.every(Number.isFinite)&&busDistanceMeters(origin,saved)<=35?saved:origin;
  }
+ // Spatial index: one cell is about 90–110m in this Seoul study area.
+ // Looking at the point's own cell and all 8 neighbours covers a 12m footprint check.
+ const BUS_REFERENCE_RADIUS_M=10;
+ const BUS_REFERENCE_GRID_DEG=.001;
+ let busCandidateIndex=new Map();
+ function busCandidateGridKey(ix,iy){return ix+','+iy;}
+ function rebuildBusCandidateIndex(){
+   busCandidateIndex=new Map();
+   if(busStopState!=='ready')return;
+   for(const feature of busStopFeatures){
+     const c=busDisplayCoord(feature);
+     const ix=Math.floor(c[0]/BUS_REFERENCE_GRID_DEG),iy=Math.floor(c[1]/BUS_REFERENCE_GRID_DEG);
+     const k=busCandidateGridKey(ix,iy);
+     if(!busCandidateIndex.has(k))busCandidateIndex.set(k,[]);
+     busCandidateIndex.get(k).push({feature,coords:c});
+   }
+ }
+ function busStopWithin10m(coords,footprintRadiusM=0){
+   if(busStopState!=='ready')return null;
+   const threshold=BUS_REFERENCE_RADIUS_M+Math.max(0,footprintRadiusM);
+   const ix=Math.floor(coords[0]/BUS_REFERENCE_GRID_DEG),iy=Math.floor(coords[1]/BUS_REFERENCE_GRID_DEG);
+   let nearest=null;
+   for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){
+     for(const stop of busCandidateIndex.get(busCandidateGridKey(ix+dx,iy+dy))||[]){
+       const distance=busDistanceMeters(coords,stop.coords);
+       if(distance<=threshold&&(!nearest||distance<nearest.distance))nearest={...stop,distance};
+     }
+   }
+   return nearest;
+ }
  function busSavePositions(){
    try{localStorage.setItem(BUS_ALIGN_KEY,JSON.stringify(busVisualPositions));}
    catch(e){console.warn('정류소 보정 저장 실패',e);}
+   rebuildBusCandidateIndex();
+   // Any earlier candidate rankings and sector overlays were derived from old stop positions.
+   ss27Invalidate('버스정류소 10m 참고 제외 위치가 변경됐습니다. 영역을 다시 분석해 주세요.');
+   clearCandidates('버스정류소 10m 참고 제외 위치가 변경됐습니다. 후보지를 다시 탐색해 주세요.');
+   ss26ClearResults();
  }
  function busCancelAlignment(){
    const wasAligning=!!busAlignFeature;
@@ -2246,7 +2282,7 @@ else kakao.maps.load(async function(){
      document.getElementById('busAlignMessage').textContent=`원본 좌표에서 ${Math.round(meters)}m 떨어져 있어요. 같은 정류소 버스 아이콘을 35m 안에서 선택해 주세요. (취소 가능)`;
      return true;
    }
-   if(meters>20&&!confirm(`서울시 정류소 좌표에서 ${Math.round(meters)}m 이동해 보여줄까요? 같은 방향/ARS 정류소인지 확인해 주세요. 화면 표시만 변경됩니다.`))return true;
+   if(meters>20&&!confirm(`서울시 정류소 좌표에서 ${Math.round(meters)}m 이동시킬까요? 같은 정류소인지 확인해 주세요. 화면의 10m 참고원과 자동 후보지 제외 기준이 함께 바뀝니다.`))return true;
    busVisualPositions[busKey(f)]=displayed;
    busSavePositions();busCancelAlignment();
    document.getElementById('busStopDetails').open=true;
@@ -2260,7 +2296,7 @@ else kakao.maps.load(async function(){
    const usingBackup=busStopState==='ready'&&busStopMetadata?.partial===true;
    document.getElementById('busBackupNotice').hidden=!usingBackup;
    document.getElementById('busStopSummary').textContent=busStopState==='ready'?
-     (usingBackup?'현재 반경 정류소 목록 · 화면 위치 맞추기 (28곳 백업)':'현재 반경 정류소 목록 · 화면 위치 맞추기 (기본 보정 28곳)'):
+     (usingBackup?'현재 반경 정류소 목록 · 화면 위치 맞추기 (28곳 백업)':'현재 반경 정류소 목록 · 화면 위치 맞추기 (최신 보정 28곳)'):
      ('정류소 데이터 '+(busStopState==='loading'?'로딩 중…':'확인 필요 · 목록 열기'));
    document.getElementById('toggleBusStops').textContent=visible.busStops?'숨기기':'표시하기';
    if(busStopState!=='ready'){
@@ -2270,14 +2306,14 @@ else kakao.maps.load(async function(){
      return;
    }
    const center=[currentCenter.getLng(),currentCenter.getLat()];
-   // Only official 500m inclusion logic determines which features are listed.
+   // Use the visible reference position also for the radius-based list.
    const rows=[];
    for(const f of busStopFeatures){
-     const c=f.geometry.coordinates;
-     if(Math.abs(c[1]-center[1])>.006||Math.abs(c[0]-center[0])>.008)continue;
-     const m=busDistanceMeters(center,c);
+     const c=f.geometry.coordinates,visual=busDisplayCoord(f);
+     if(Math.abs(visual[1]-center[1])>.006||Math.abs(visual[0]-center[0])>.008)continue;
+     const m=busDistanceMeters(center,visual);
      if(m>510)continue;
-     const visual=busDisplayCoord(f),shift=busDistanceMeters(c,visual),corrected=shift>=.5;
+     const shift=busDistanceMeters(c,visual),corrected=shift>=.5;
      rows.push({f,m,shift,corrected});
      const circle=new kakao.maps.Circle({map:visible.busStops?map:null,
        center:new kakao.maps.LatLng(visual[1],visual[0]),radius:10,
@@ -2298,7 +2334,7 @@ else kakao.maps.load(async function(){
        if(window._smokespotBusInfoWindow)window._smokespotBusInfoWindow.close();
        const content='<div style="padding:9px 12px;min-width:160px;font-size:12px;line-height:1.6"><b>'+escape(p.name||'정류소')+'</b><div>ARS '+escape(p.ars_id||'미확인')+'</div>'+
          (corrected?'<div>화면 위치 '+Math.round(shift)+'m 보정 · 주황색</div><div>회색 작은 점은 서울시 원본 위치</div>':'<div>서울시 공식 정류소 대표 좌표</div>')+
-         '<div>10m 검토원 · 법적 경계 아님</div><div>화면 위치 보정은 레이어 목록에서 설정</div></div>';
+         '<div>10m 검토원 · 자동 후보 제외에 동일 좌표 사용 · 법적 확정 경계 아님</div><div>위치 보정은 레이어 목록에서 설정</div></div>';
        window._smokespotBusInfoWindow=new kakao.maps.InfoWindow({position:new kakao.maps.LatLng(visual[1],visual[0]),content,removable:true});
        window._smokespotBusInfoWindow.open(map);
      });
@@ -2308,8 +2344,8 @@ else kakao.maps.load(async function(){
    const correctedN=rows.filter(x=>x.corrected).length;
    const sourceFile=busStopMetadata?.source_file||'서울시버스정류소위치정보(20260902).xlsx';
    info.textContent=`${usingBackup?'사용자 검토 정류소 부분 백업 (전체 아님)':'서울시 공식 정류소'} ${busStopFeatures.length.toLocaleString('ko-KR')}개 좌표 로드 · 현재 500m 내부 ${fullyInside}개`+
-     (rows.length>fullyInside?` / 원본 10m 원이 경계에 걸치는 ${rows.length-fullyInside}개`:'')+
-     ` · 검토 위치 28곳 기본 제공 · 현재 반경 화면 보정 ${correctedN}개 (주황색) · 출처 ${sourceFile} · 점수/자동 제외 영향 없음`;
+     (rows.length>fullyInside?` / 원본 중심이 반경 바깥인 ${rows.length-fullyInside}개`:'')+
+     ` · 최종 검토 위치 28곳 기본 제공 · 현재 반경 화면 보정 ${correctedN}개 · 출처 ${sourceFile} · 10m 참고 제외에 보정 위치 반영 (법적 경계 아님)`;
    for(const {f,m,shift,corrected} of rows){
      const li=document.createElement('li'),p=f.properties||{};
      li.style.cssText='padding:4px 0;border-bottom:1px solid #cfe5f2;line-height:1.5';
@@ -2335,7 +2371,7 @@ else kakao.maps.load(async function(){
    busVisualPositions={...BUS_ALIGNMENT_BACKUP};
    busSavePositions();busCancelAlignment();renderBusStopsLayer();
    document.getElementById('busStopDetails').open=true;
-   document.getElementById('busRestoreReviewed28').title='직접 확인했던 정류소 28곳의 화면 표시 위치를 복원했습니다. 실제 서울시 정류소 좌표와 점수/제외 기준은 바꾸지 않습니다.';
+   document.getElementById('busRestoreReviewed28').title='직접 검토한 28곳 좌표를 복원했습니다. 지도 10m 원과 후보지 참고 제외에 함께 적용됩니다. 서울시 원본 위치는 유지합니다.';
  };
  document.getElementById('busResetAllAlignments').onclick=function(){
    if(!Object.keys(busVisualPositions).length)return;
@@ -2358,9 +2394,10 @@ else kakao.maps.load(async function(){
        &&f.geometry.coordinates[1]>36.7&&f.geometry.coordinates[1]<38.4))
        throw Error('좌표계/값 검증 실패; 경도위도(WGS84) 필요');
      busStopFeatures=arr;busStopMetadata=data.metadata||{};busStopState='ready';
-     renderBusStopsLayer();
+     rebuildBusCandidateIndex();
+     renderBusStopsLayer();updateSpatialReadyStatus();
      console.info('SmokeSpot v3.7.23: Seoul bus stops loaded',arr.length,busStopMetadata.source_file);
-   }catch(err){busStopState=String(err.message||err);console.error('버스정류소 참고 레이어',err);renderBusStopsLayer();}
+   }catch(err){busStopState=String(err.message||err);busCandidateIndex.clear();console.error('버스정류소 참고 레이어',err);renderBusStopsLayer();updateSpatialReadyStatus();}
  }
  document.getElementById('toggleBusStops').onclick=function(){
    visible.busStops=!visible.busStops;
@@ -4490,12 +4527,12 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
  function updateSpatialReadyStatus(){
    const el=document.getElementById('spatialReadyStatus');
    const fmtState=(name,loaded,error)=>name+': '+(loaded?'준비 완료':error?'오류':'로딩 중');
-   el.textContent=[fmtState('건물',buildingsLoaded,buildingError),fmtState('차도',roadsLoaded,roadError),fmtState('보도',footpathsLoaded,footpathError),fmtState('하천',riversLoaded,riverError),fmtState('학교',schoolsLoaded,schoolError),(school50State==='ready'?'절대보호 50m: 개인 자료 적용':'절대보호 50m: 공개판 미적용 (추가 검증 필요)'),fmtState('유아시설',childcareLoaded,childcareError)].join(' · ');
+   el.textContent=[fmtState('건물',buildingsLoaded,buildingError),fmtState('차도',roadsLoaded,roadError),fmtState('보도',footpathsLoaded,footpathError),fmtState('하천',riversLoaded,riverError),fmtState('학교',schoolsLoaded,schoolError),(school50State==='ready'?'절대보호 50m: 개인 자료 적용':'절대보호 50m: 공개판 미적용 (추가 검증 필요)'),fmtState('유아시설',childcareLoaded,childcareError),('버스 10m: '+(busStopState==='ready'?'준비 완료':busStopState==='loading'?'로딩 중':'오류'))].join(' · ');
    const btn=document.getElementById('runCandidates');
-   const ready=buildingsLoaded&&roadsLoaded&&footpathsLoaded&&riversLoaded&&schoolsLoaded&&childcareLoaded;
+   const ready=buildingsLoaded&&roadsLoaded&&footpathsLoaded&&riversLoaded&&schoolsLoaded&&childcareLoaded&&busStopState==='ready';
    btn.disabled=!ready;
    document.getElementById('quickRun').disabled=!ready;
-   btn.title=ready?(school50State==='ready'?'개인 불러온 50m 도형 포함 · 후보지 검토':'50m 미적용 시연 전용 · 실제 설치 가능 판정 금지'):'건물·차도·보도·하천·학교·유아시설 자료 준비 완료 후 활성화됩니다';
+   btn.title=ready?(school50State==='ready'?'개인 불러온 50m 도형 포함 · 후보지 검토':'50m 미적용 시연 전용 · 실제 설치 가능 판정 금지'):'건물·차도·보도·하천·학교·유아시설·버스정류소 자료 준비 완료 후 활성화됩니다';
  }
  updateSpatialReadyStatus();
  function candidateIntersects(point,feature){try{return turf.booleanPointInPolygon(point,feature);}catch(e){return false;}}
@@ -4624,6 +4661,8 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
  function candidateWarnings(coords){
    const pt=pointFeature(...coords),warnings=[];
    if(school50At(coords))warnings.push('학교 50m 개인 검증 도형 내부: 후보지 선제 제외 (학교별 금연지정 상태 대조 필요)');
+   const nearBus=busStopWithin10m(coords);
+   if(nearBus)warnings.push('버스정류소 보정 위치 기준 10m 참고 제외 ('+nearBus.distance.toFixed(1)+'m) · 법정 경계 확인 필요');
    if(buildingAt(coords))
      warnings.push('건물 내부: 후보지 사용 불가');
    if(roadAt(coords))
@@ -4686,6 +4725,8 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
    let critical=false;
    const absolute50=school50At(coords);
    if(absolute50){critical=true;caution.push('학교 50m 개인 검증 도형 내부: 설치 후보지 선제 제외(학교별 금연구역 지정 확인 필요)');}
+   const busStop=busStopWithin10m(coords);
+   if(busStop){critical=true;caution.push('버스정류소 보정 위치에서 '+busStop.distance.toFixed(1)+'m: 10m 실험용 후보지 제외 (법적 지정 확인 별도)');}
    if(buildingAt(coords)){critical=true;caution.push('건물 면형 내부: 위치 재설정 필요');}
    else positive.push('국가기본도 건물 면형 외부');
    if(roadAt(coords)){critical=true;caution.push('차도 면형 내부: 위치 재설정 필요');}
@@ -5038,8 +5079,8 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
  function screenCandidates(){
    if(ss26Mode()!=='wide'){ss26RunFocus();return;}
    if(school50State!=='ready')console.warn('공개판 후보지 시연: 학교 50m 절대보호구역 자료가 빠져 있어 실제 설치 적합성 판단을 할 수 없습니다.');
-   if(!schoolsLoaded||!childcareLoaded){
-     clearCandidates('학교·유아시설 자료가 준비되지 않았습니다. '+(schoolError||childcareError||'로딩 중입니다.'));
+   if(!schoolsLoaded||!childcareLoaded||busStopState!=='ready'){
+     clearCandidates('학교·유아시설·버스정류소 자료가 준비되지 않았습니다. '+(schoolError||childcareError||'로딩 중입니다.'));
      return;
    }
    if(!riversLoaded){
@@ -5086,7 +5127,7 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
      generated++;const coords=[lng+x/1000/kmPerLng,lat+y/1000/kmPerLat],pt=pointFeature(...coords);
      const onBlocked=blockers.some(f=>candidateIntersects(pt,f));
      const nearPin=userPins.some(pin=>turf.distance(pt,pointFeature(...pin),{units:'meters'})<30);
-     if(onBlocked||nearPin||buildingAt(coords)||roadAt(coords)||riverAt(coords)||
+     if(onBlocked||nearPin||busStopWithin10m(coords)||buildingAt(coords)||roadAt(coords)||riverAt(coords)||
        (document.getElementById('excludeFootpaths').checked&&footpathAt(coords))||
        (document.getElementById('excludeRiver15').checked&&riverBankDistance(coords)!==null)){
        excluded++;
@@ -7723,6 +7764,8 @@ function ss26HitsFootprint(test,feature,box){
 }
 function ss26SpatiallyPassable(coords,blockers){
  if(ss26Dist(coords,BUILDING_CENTER)>475)return '기준 공간정보 범위 외부';
+ if(busStopState!=='ready')return '버스정류소 위치 자료 미검증';
+ if(busStopWithin10m(coords,2))return '버스정류소 10m 참고 범위와 4m 설치 가정 면적 중첩';
  const point=turf.point(coords);
  const circle=turf.buffer(point,2,{units:'meters',steps:8});
  const footprintBounds=turf.bbox(circle);
@@ -8080,6 +8123,8 @@ function ss27GridFilters(){
 }
 // Cached bounding boxes reduce expensive geometry tests without changing exclusions.
 function ss27SpatialCheck(c,flt){
+ if(busStopState!=='ready')return '버스정류소 10m 참고자료 로딩 미완료';
+ if(busStopWithin10m(c,2))return '버스정류소 10m 참고 범위와 4m 설치 가정 면적 중첩';
  const buffer=turf.buffer(turf.point(c),2,{units:'meters',steps:8});
  const bb=turf.bbox(buffer);
  for(const coll of flt.arrays){for(const f of coll){
@@ -8361,8 +8406,8 @@ function ss27NearestCell(c){
 async function ss27RunHeat(){
  if(ss27Busy){ss27Message('점수 지도를 계산 중이야. 현재 계산이 끝난 후 다시 시도해 줘.');return;}
  if(!ss27.enable.checked){ss27Message('먼저 [영역 전체 점수 지도 사용]을 켜 줘.');return;}
- if(!buildingsLoaded||!footpathsLoaded||!roadsLoaded||!riversLoaded||!schoolsLoaded||!childcareLoaded||!crossData?.cells100||!officialPopulation?.grids||populationRows.length){
-  ss27Message('건물·도로·보도·학교·주거인구·생활인구 데이터가 모두 준비된 뒤 실행해 줘.');return;
+ if(!buildingsLoaded||!footpathsLoaded||!roadsLoaded||!riversLoaded||!schoolsLoaded||!childcareLoaded||busStopState!=='ready'||!crossData?.cells100||!officialPopulation?.grids||populationRows.length){
+  ss27Message('건물·도로·보도·학교·정류소·주거인구·생활인구 데이터가 모두 준비된 뒤 실행해 줘.');return;
  }
  if(ss26PickMode||pinMode||drawing||relocatingCandidateId!==null||addingReviewCandidate||routePickMode||busAlignFeature){
   ss27Message('진행 중인 지도 등록·영역 선택을 완료한 다음 실행해 줘.');return;
@@ -8963,10 +9008,11 @@ function ss43RefreshLens(){
  counts.bus=0;
  for(const f of busStopState==='ready'?busStopFeatures:[]){
   const coords=f.geometry?.coordinates;if(!Array.isArray(coords))continue;
-  const dot=turf.point(coords);
+  const visibleCoords=busDisplayCoord(f);
+  const dot=turf.point(visibleCoords);
   if(!turf.booleanPointInPolygon(dot,study))continue;
   counts.bus++;
-  if(doDraw)ss43ClipAdd(stopCircle(f),study,b,'#4b98ba',.19,1.5);
+  if(doDraw)ss43ClipAdd(turf.circle(visibleCoords,.01,{units:'kilometers',steps:14}),study,b,'#4b98ba',.19,1.5);
  }
  if(doDraw)pop=ss43CountPopulation(study,b);
  else{
@@ -9628,5 +9674,5 @@ body{background:var(--bg)!important}
 }
 /* Keep section/metric headings bold: only secondary copy changes. */
 </style>
-<div id="smokespotSyntheticNotice" role="note" style="position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99999;border:2px solid #a45e08;border-radius:8px;padding:7px 13px;background:#fff7df;color:#623d0c;box-shadow:0 2px 10px #0003;font:700 12px/1.4 Malgun Gothic,sans-serif;text-align:center;pointer-events:none;max-width:86vw">공개 시험판 · 실제 도로·보도·하천·공원·토지피복 / 학교·유아시설 위치에 대응하는 건물 윤곽 또는 원형 참고영역 / 인구 수치 가상 · 버스정류소는 서울시 실제 좌표 · 학교 절대보호 50m 미검증·실제 설치 가능 여부 법적 판단 불가</div>
+<div id="smokespotSyntheticNotice" role="note" style="position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99999;border:2px solid #a45e08;border-radius:8px;padding:7px 13px;background:#fff7df;color:#623d0c;box-shadow:0 2px 10px #0003;font:700 12px/1.4 Malgun Gothic,sans-serif;text-align:center;pointer-events:none;max-width:86vw">공개 시험판 · 실제 도로·보도·하천·공원·토지피복 / 학교·유아시설 위치에 대응하는 건물 윤곽 또는 원형 참고영역 / 인구 수치 가상 · 버스정류소는 서울시 실제 좌표와 사용자 보정값 기준 10m 참고 제외 · 학교 절대보호 50m 미검증·실제 설치 가능 여부 법적 판단 불가</div>
 </body></html>
