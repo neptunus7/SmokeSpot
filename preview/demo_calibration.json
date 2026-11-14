@@ -1,1 +1,1 @@
-{"model":"synthetic-demo","reference":"fabricated ranges","R_low":70,"R_high":700,"L_low":200,"L_high":2500,"coverage_min":0.5,"fixed_ref_count":0,"n_sgis":529,"n_ngii":0,"notice":"SYNTHETIC_DEMO"}
+{"model":"synthetic-demo","reference":"fabricated ranges","R_low":70,"R_high":700,"L_low":200,"L_high":2500,"coverage_min":0.5,"fixed_ref_count":0,"n_sgis":529,"n_ngii":0,"notice":"SYNTHETIC_DEMO","public_demo_source_note":"SYNTHETIC_DEMO, 실제 인구·보행 동선·비공개 격자 사용 안 함"}
