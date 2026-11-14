@@ -1245,7 +1245,7 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
 <div class="shell">
 <header class="topbar">
  <div class="brand"><div class="logo" aria-hidden="true">S.</div><div><h1>SmokeSpot</h1><small>서울시 흡연환경 · 공간 입지 분석</small></div></div>
- <span class="version">SmokeSpot v3.7.41.18 · 공개 시험판 · 가상 인구</span>
+ <span class="version">SmokeSpot v3.7.41.18 · 공개 시험판 v10 · 가상 인구</span>
 </header>
 
 <div class="layout">
@@ -1276,7 +1276,7 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
 <details class="sidebar-collapse" id="childcareRulesPanel"><summary>🧩 유아시설별 적용 방식 조정 (19곳)</summary>
   <section class="panel" style="padding-top:12px">
     <h2>시설별 참고영역 기준</h2>
-    <p class="hint">원본 로컬판의 시설별 분류(<b>건물 참고 +30m 9곳 / 건물 중심 +40m 10곳</b>)를 기본값으로 복원했어. 어린이집 전용동처럼 예외가 있으면 아래에서 바꿔. 변경 내용은 브라우저에 저장되고 <b>후보지 분석에도 즉시 반영</b>돼.</p>
+    <p class="hint">현재 공개판의 지정 기본값은 <b>건물·위치 참고 +30m 17곳 / 건물 중심 +40m 2곳</b>(꿈꾸리아이뜰어린이집·반디어린이집)이야. 어린이집 전용동처럼 예외가 있으면 아래에서 바꿔. 변경 내용은 브라우저에 저장되고 <b>후보지 분석에도 즉시 반영</b>돼.</p>
     <p class="hint">30m는 실제 건물 윤곽을 찾은 경우 해당 건물을, 그 외에는 위치 참고도형을 기준으로 계산해. 어느 쪽도 법정 시설부지 경계로 확정된 자료는 아니야.</p>
     <div id="childcareRuleCount" style="font-weight:800;margin:10px 0;color:#0f766e">시설 목록 준비 중…</div>
     <div id="childcareRulesList" style="max-height:420px;overflow:auto;display:grid;gap:8px" aria-live="polite"></div>
@@ -1293,7 +1293,26 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
   <p class="hint" style="margin-top:9px">원본 로컬 폴더의 <code>smokespot_school_parcels_review.geojson</code>을 선택하세요. 같은 폴더의 <code>smokespot_school_parcel_30m_review.geojson</code>도 같이 선택하면 원래 계산했던 30m 도형을 그대로 사용합니다. 하나만 선택해도 자동 계산됩니다.</p>
   <p id="schoolParcelLocalStatus" role="status" style="font-size:12px;line-height:1.5;color:#6b7280">현재 상태: 공개용 참고 경계 사용 중</p>
   <button type="button" id="schoolParcelLocalReset" class="wide ghost" style="margin-top:8px" disabled>공개용 참고 경계로 되돌리기</button>
-  <p class="hint" style="margin-top:8px"><b>공개 주의:</b> 이 입력은 GitHub에 파일을 저장하지 않습니다. 페이지 새로고침 시 해제됩니다. 지적도에서 선택한 원본 GeoJSON은 별도의 재배포 허가 전까지 GitHub에 업로드하지 마세요.</p>
+<div style="border:1px solid #d6e0ea;background:#f8fafc;border-radius:10px;padding:10px;margin-top:12px">
+    <b style="font-size:12px">을지중학교 부지 경계 개인 보정</b>
+    <p class="hint">먼저 학교 27곳 GeoJSON을 불러온 다음, 을지중학교 부지 외곽을 지도에서 직접 클릭해 꼭짓점으로 지정하세요. <b>보정한 경계와 +30m 분석영역은 이 브라우저 화면에만 적용되고 GitHub에 저장되지 않습니다.</b> 새로고침 후 27개 학교 파일을 다시 불러오면 보정이 재적용됩니다. 지도·지적도에서 옮긴 경계는 출처 이용조건도 별도로 확인해야 합니다.</p>
+    <button type="button" id="euljiParcelDrawStart" class="wide ghost">을지중학교 경계 직접 그리기</button>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">
+      <button type="button" id="euljiParcelUndo" disabled>점 취소</button>
+      <button type="button" id="euljiParcelFinish" disabled>경계 확정 · +30m 적용</button>
+      <button type="button" id="euljiParcelCancel" disabled>그리기 취소</button>
+      <button type="button" id="euljiParcelRestore" disabled>을지중 이전 경계 복구</button>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+      <button type="button" id="euljiParcelExport" disabled>보정한 을지중 경계 GeoJSON 저장</button>
+      <label class="filebutton" for="euljiParcelImport">이전에 저장한 을지중 경계 불러오기</label>
+      <input id="euljiParcelImport" type="file" accept=".geojson,.json,application/geo+json,application/json" aria-describedby="euljiParcelStatus">
+      <button type="button" id="euljiParcelClearStored">브라우저 보정 기록 삭제</button>
+    </div>
+    <p id="euljiParcelStatus" role="status" style="font-size:12px;color:#5b6472;margin:8px 0 0">로컬 학교 부지 자료를 불러오면 사용할 수 있어요.</p>
+    <p class="hint" style="margin-top:4px">v10: 을지중 보정은 <b>이 브라우저에만 저장</b>되며, 27개 학교 파일을 다시 불러오면 자동 반영됩니다. 브라우저 데이터를 지우거나 다른 기기로 옮길 때는 직접 GeoJSON으로 백업하세요. <b>백업 파일을 공개 GitHub에 업로드하지 마세요.</b></p>
+  </div>
+  <p class="hint" style="margin-top:8px"><b>공개 주의:</b> 이 입력은 GitHub에 파일을 저장하지 않습니다. 27개 학교 원본의 적용은 새로고침 시 해제됩니다(을지중만 별도 브라우저 보관 가능). 지적도에서 선택한 원본 GeoJSON은 별도의 재배포 허가 전까지 GitHub에 업로드하지 마세요.</p>
  </section>
 </details>
 <details class="sidebar-collapse" id="school50LocalPanel"><summary>🏫 학교 절대보호 50m · 개인 파일 불러오기</summary>
@@ -1309,7 +1328,7 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
  </section>
 </details>
 <details class="sidebar-collapse"><summary>데이터 및 사용 안내</summary>
-  <section class="panel notice-panel"><h2>데이터 안내</h2><div class="notice"><b>검토용 분석 자료입니다.</b><br>학교는 공개 가능한 토지피복도 교육시설 분류 및 건물·위치 참고 도형의 +30m 시연영역을 사용합니다. 학교 전체 부지 경계는 아닙니다. 어린이집·유치원 19곳은 공개된 건물 윤곽을 찾은 13곳과 위치 참고도형 6곳을 사용하며, 원래 로컬판 기본 분류에 따라 건물 중심 +40m 10곳, 건물·위치 참고 +30m 9곳입니다. 왼쪽 [유아시설별 기준 조정]에서 개별 변경할 수 있습니다. 둘 다 법정 금연구역을 확정한 것이 아닙니다. 공원 도형도 법적 금연구역을 의미하지 않아요. 누락 시설은 사용자가 지도에서 직접 핀이나 도형으로 등록하며, 자동 탐색 핀은 사용하지 않습니다. 사용자가 등록한 핀과 경계는 미검증 자료이며, +3m는 자체 제외 기준이지 법정 거리 기준이 아닙니다. 표시되지 않는 장소도 합법적인 설치 후보지로 확정되지 않습니다.</div></section>
+  <section class="panel notice-panel"><h2>데이터 안내</h2><div class="notice"><b>검토용 분석 자료입니다.</b><br>학교는 공개 가능한 토지피복도 교육시설 분류 및 건물·위치 참고 도형의 +30m 시연영역을 사용합니다. 학교 전체 부지 경계는 아닙니다. 어린이집·유치원 19곳은 공개된 건물 윤곽을 찾은 13곳과 위치 참고도형 6곳을 사용하며, 이번 공개판 기본 분류는 꿈꾸리아이뜰·반디만 건물 중심 +40m(2곳), 나머지는 건물·위치 참고 +30m(17곳)입니다. 왼쪽 [유아시설별 기준 조정]에서 개별 변경할 수 있습니다. 둘 다 법정 금연구역을 확정한 것이 아닙니다. 공원 도형도 법적 금연구역을 의미하지 않아요. 누락 시설은 사용자가 지도에서 직접 핀이나 도형으로 등록하며, 자동 탐색 핀은 사용하지 않습니다. 사용자가 등록한 핀과 경계는 미검증 자료이며, +3m는 자체 제외 기준이지 법정 거리 기준이 아닙니다. 표시되지 않는 장소도 합법적인 설치 후보지로 확정되지 않습니다.</div></section>
 </details>
  </aside>
  <main class="workspace">
@@ -1720,7 +1739,8 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
       <summary id="busStopSummary">현재 반경 정류소 목록 · 화면 위치 맞추기</summary>
       <p id="busBackupNotice" hidden style="margin:6px 0;color:#92400e;background:#fffbeb;padding:6px;border:1px solid #fde68a;border-radius:7px;line-height:1.45">정류소 원본 파일이 없어 사용자 검토 28곳만 복원했습니다. 이 목록은 전체 정류소가 아닙니다. 서울시 원본 xlsx 또는 GeoJSON을 넣고 실행기를 재시작하면 전체 목록을 우선 적용합니다.</p>
       <ol id="busStopList"></ol>
-      <button type="button" id="busResetAllAlignments">저장된 화면 위치 보정 모두 초기화</button>
+      <button type="button" id="busRestoreReviewed28" style="border:1px solid #8daaca;border-radius:8px;background:#eff6ff;padding:5px 8px;margin:3px 3px 3px 0;font-weight:750;color:#1d4e89">검토한 28개 기본 위치 다시 적용</button>
+       <button type="button" id="busResetAllAlignments">저장된 화면 위치 보정 모두 초기화</button>
     </details>
    </div>
 
@@ -1757,17 +1777,17 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
      <div class="confidence-item"><i class="line-sample legal"></i><span><b>법적 확인 구역</b><small>법령·지정 고시와 실제 경계 검증 필요 · 현재 자동 확정 표시 없음</small></span></div>
      <div class="confidence-item"><i class="line-sample"></i><span><b>공공 공간정보 · 실선</b><small>사용자 검토 학교 필지·공원 경계 (법적 금연 지정과 별개)</small></span></div>
      <div class="confidence-item"><i class="line-sample automatic"></i><span><b>직접 등록한 위치 핀</b><small>사용자가 확인 후 표시한 시설의 대표 위치이며 법적 경계를 뜻하지 않습니다.</small></span></div>
-     <div class="confidence-item"><i class="line-sample estimated"></i><span><b>계산·미확인 시설 위치 · 점선</b><small>학교 선택 필지+30m, 유아시설 선택 건물 윤곽+30m 또는 건물 중심점+40m (시설별 변경 가능), 직접 등록 시설 경계 및 3m 자체 제외</small></span></div>
+     <div class="confidence-item"><i class="line-sample estimated"></i><span><b>계산·미확인 시설 위치 · 점선</b><small>학교 검토 부지+30m(개인 불러오기 가능), 유아시설 건물 윤곽+30m 또는 건물 중심점+40m (시설별 변경 가능), 직접 등록 시설 경계 및 3m 자체 제외</small></span></div>
    </div>
    <details class="legal-data-status-compact" id="legalDataStatusDetails">
      <summary>보호구역·정류소 데이터 상태 및 출처</summary>
      <div id="school50Info" role="status">학교 실제 위치 기반 가상 참고 원 검증 중…</div>
      <div id="busStopInfo" role="status">서울시 정류소 데이터 확인 중…</div>
-     <p><b>공개 데모 주의:</b> 학교·어린이집의 실제 시설 위치를 참고하며 일부 교육시설 토지피복·실제 건물 윤곽을 사용하지만, 표시된 30m/40m/50m는 법정 보호구역이 아닌 분석 참고영역입니다. 50m 원은 실제 학교 출입문 기준 법정 절대보호구역이 아니며, 도형 내 후보지 제외는 프로그램 시연용입니다. 정류장도 가상 위치이며 실제 버스정류소 금연구역을 표시하지 않습니다.</p>
+     <p><b>공개 데모 주의:</b> 학교·어린이집 위치 참고, 교육시설 토지피복·건물 윤곽을 사용합니다. 표시되는 학교·유아시설 30m/40m는 모델 참고영역입니다. 학교 절대보호 50m는 개인 파일을 직접 불러올 때에만 분석에 반영되며 최신 법적 지정 여부와 별개입니다. 정류장은 서울시 공식 위치를 기본으로 표시하고 일부 화면 위치는 사용자가 보정했습니다. 10m 원은 지정 고시 확인 전 분석 참고영역입니다.</p>
      <p>출처와 실제/가상 구분: <a href="DATA_SOURCES_PUBLIC.md" target="_blank" rel="noopener">공개 데모 자료별 출처 안내</a>.</p>
      <a href="https://data.seoul.go.kr/dataList/OA-15067/A/1/datasetView.do" target="_blank" rel="noopener noreferrer">서울시 버스정류소 원본</a>
    </details>
-   <p class="layer-note"><i class="swatch schoolbuf" style="display:inline-block;vertical-align:middle;margin-right:4px"></i> 주황색=학교 부지+30m, 청록색=유아시설 직접 선택 건물윤곽+30m, 보라색=유아시설 선택 건물중심+40m(임시) · 법정 경계 확정 아님 &nbsp;·&nbsp; <i class="swatch range" style="display:inline-block;vertical-align:middle;margin-right:4px"></i> 파란색은 분석 반경</p>
+   <p class="layer-note"><i class="swatch schoolbuf" style="display:inline-block;vertical-align:middle;margin-right:4px"></i> 주황색=학교 부지+30m, 청록색=유아시설 건물·위치 참고+30m(기본 17곳), 보라색=꿈꾸리아이뜰·반디 건물중심+40m(기본 2곳) · 법정 경계 확정 아님 &nbsp;·&nbsp; <i class="swatch range" style="display:inline-block;vertical-align:middle;margin-right:4px"></i> 파란색은 분석 반경</p>
   </section>
     </div>
     <div class="candidate-drawer" id="candidateDrawer" hidden>
@@ -1886,7 +1906,7 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
     <div class="section-head"><div><h2>지역 특성 대시보드</h2><p class="hint" style="margin:2px 0 0">주소 중심 500m · 확보된 자료만 표시합니다</p></div><span class="count-pill">분석용 · 법적 판정 아님</span></div>
     <div class="dashboard-grid">
       <div class="dashboard-card"><div class="k">30m 참고영역과 겹친 학교 수</div><span class="v" id="dbSchools">—</span><div class="s">학교 참고 건물·위치 +30m 참고영역이 분석 반경과 겹치는 건수</div></div>
-      <div class="dashboard-card"><div class="k">혼합 30m/40m 영역과 겹친 유아시설 수</div><span class="v" id="dbChildcare">—</span><div class="s">유아시설 사용자건물·위치 참고 +30m / 선택 건물중심 +40m (시설별 변경 가능)</div></div>
+      <div class="dashboard-card"><div class="k">유아시설 기본 30m(17곳)·40m(2곳) 보호영역과 겹친 시설 수</div><span class="v" id="dbChildcare">—</span><div class="s">유아시설 사용자건물·위치 참고 +30m / 선택 건물중심 +40m (시설별 변경 가능)</div></div>
       <div class="dashboard-card"><div class="k">공원 공간정보 도형</div><span class="v" id="dbParks">—</span><div class="s">금연 지정 여부는 별도 확인</div></div>
       <div class="dashboard-card"><div class="k">직접 등록한 주의시설</div><span class="v" id="dbManual">—</span><div class="s">현재 500m에 걸치는 핀·추정 영역</div></div>
       <div class="dashboard-card"><div class="k">인구통계 데이터</div><span class="v" id="dbPopulationState" style="font-size:17px;margin-top:11px">미연결</span><div class="s" id="dbPopulationSubtitle">서울시 2026-10 월평균 자료 자동 연결</div></div>
@@ -1930,7 +1950,7 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
   <div class="site-foot">SmokeSpot v3.7.41.18 공개 시연 · 원본 UI 유지 · 국가기본도 차도·보도·하천, 건물 및 토지피복 실제 자료 / 인구 가상 자료 · 법적 보호구역과 설치 가능성은 별도 확인 필요</div>
   </details>
  <details class="ss37MethodNotes"><summary>분석 기준·자료 출처·주의사항 자세히</summary><div>
- <p><strong>기존 개발·데이터 설명</strong> — SmokeSpot v3.7.41.18 · 섹터 기반 공개 시험판 — 원래 후보지 기능과 공간 제외 설정을 유지합니다. 학교 27곳은 공개 가능한 토지피복/건물·위치 기반 참고영역을, 유아시설 19곳은 공공 건물·위치 기반 참고영역을 사용합니다. 기본값은 건물·위치+30m 9곳 / 건물중심+40m 10곳입니다. 30m 건물 경계는 토지 부지와 다르며 법적 판정은 아닙니다. v3.7.23은 검색 중심 점수를 사용하지 않고, 가까운 인구의 노출 회피와 주변 생활권의 활동량을 분리한 검증용 평가를 제공합니다.</p>
+ <p><strong>기존 개발·데이터 설명</strong> — SmokeSpot v3.7.41.18 · 섹터 기반 공개 시험판 — 원래 후보지 기능과 공간 제외 설정을 유지합니다. 학교 27곳은 공개 가능한 토지피복/건물·위치 기반 참고영역을, 유아시설 19곳은 공공 건물·위치 기반 참고영역을 사용합니다. 기본값은 건물·위치+30m 17곳 / 건물중심+40m 2곳(꿈꾸리아이뜰·반디)입니다. 30m 건물 경계는 토지 부지와 다르며 법적 판정은 아닙니다. v3.7.23은 검색 중심 점수를 사용하지 않고, 가까운 인구의 노출 회피와 주변 생활권의 활동량을 분리한 검증용 평가를 제공합니다.</p>
  <p>개방형 야외 재떨이·안내 표지 지점의 상대적 보호 조건을 분석합니다. 4m 가상 면적은 설치 검토용 가정이며 연기 확산 범위가 아닙니다.</p>
  <p>기존 모델(35/25/25/15)은 비교 실험의 기준으로 보존합니다. 혼합 모델은 건물·보도 점수에서 절대 기준 75%, 탐색 전체의 상대 이격 기준 25%를 합산합니다. 주거·생활인구는 가상 수치를 기존 정규화 규칙에 입력하여 시연합니다.</p>
  <p>법적·물리적 공간 제외는 점수 상대화와 독립입니다. 학교 50m, 유아시설 참고영역, 하천·보도 제외 등의 레이어는 관련 법정 일괄 허가 판정이 아닙니다. 토지 소유권·사용승낙·관리 주체·주출입구·실제 연기 노출은 현장 확인이 필요합니다.</p>
@@ -1980,6 +2000,7 @@ else kakao.maps.load(async function(){
  let currentCenter=CENTER;
  const geocoder=new kakao.maps.services.Geocoder();
  let schoolParcelLocalActive=false,schoolParcelLocalBackup=null;
+ let euljiParcelDrawActive=false,euljiParcelVertices=[],euljiParcelDraft=null,euljiParcelPrevious=null;
  let schoolFeatures=[],schoolSiteFeatures=[],childcareFeatures=[],childcareSiteFeatures=[],childcareOptions=new Map(),childcareOverrides={},parkFeatures=[],schoolsLoaded=false,schoolError='',childcareLoaded=false,childcareError='';
  let buildingFeatures=[],buildingsLoaded=false,buildingError='';
  let roadFeatures=[],roadsLoaded=false,roadError='';
@@ -2001,9 +2022,10 @@ else kakao.maps.load(async function(){
  // Only user-controlled on-screen display corrections; NEVER legal geometry or selection score.
  // Local fallback: ONLY the 28 user-reviewed stops. Complete official dataset is always preferred.
  // The fallback has no station names and is not a legal or complete bus-stop inventory.
- const BUS_ALIGN_KEY='smokespot_bus_stop_visual_positions_v1';
+ const BUS_ALIGN_KEY='smokespot_bus_stop_visual_positions_public_v9';
  // User-verified on-screen positions (28 stops); neither legal reference points nor score inputs.
- // Existing localStorage wins, including {} after explicit reset. Backup is supplied separately too.
+ // Public default: 28 reviewed positions. Use a NEW storage namespace so stale v1 corrections do not override the restored public default.
+ // Only changes made from v9 onward can override this baseline for the individual visitor.
  const BUS_ALIGNMENT_BACKUP={"110000263|11364|127.0749325,37.6508109":[127.07505609239374,37.650785737972186],"110000357|11458|127.0722916,37.6512470":[127.07238509341475,37.65126943292021],"110000258|11359|127.0718008,37.6505400":[127.07181210609386,37.650512957509946],"110000313|11414|127.0768820,37.6497970":[127.07688820862937,37.65000971279936],"110000260|11361|127.0739505,37.6528902":[127.07386527666279,37.652658281191975],"110000248|11349|127.0764226,37.6488502":[127.07649042467212,37.64886347045039],"110000247|11348|127.0769381,37.6517261":[127.07686723310515,37.65164726277844],"110000259|11360|127.0709042,37.6502087":[127.070956339156,37.65028147223136],"110000298|11399|127.0774015,37.6505432":[127.07754034814438,37.650556633084214],"110000299|11400|127.0776284,37.6507368":[127.07750654955211,37.650745861695924],"110000253|11354|127.0736281,37.6477075":[127.07369040365444,37.64770748922225],"110000297|11398|127.0775629,37.6518670":[127.07760414937826,37.65197563899093],"110000254|11355|127.0738318,37.6475069":[127.07369040810526,37.647711994136145],"110000117|11217|127.0707160,37.6524976":[127.07059585261715,37.65252964054843],"110000256|11357|127.0712793,37.6477684":[127.07135057405554,37.64779902589502],"110000312|11413|127.0775774,37.6480879":[127.07748108727709,37.648051939088695],"110000311|11412|127.0774280,37.6478370":[127.0775205597563,37.64787171650287],"110000255|11356|127.0712087,37.6476009":[127.0712427586469,37.64762339930046],"110000116|11216|127.0694249,37.6515821":[127.06943906542374,37.65154375108651],"110000252|11353|127.0741270,37.6465375":[127.07414251865592,37.64656295700637],"110000251|11352|127.0742898,37.6465291":[127.07430681116524,37.646553843805286],"110000246|11347|127.0691543,37.6499131":[127.06908067108007,37.649989766017605],"110000118|11218|127.0715549,37.6540788":[127.07155478496,37.653961624965646],"110000119|11219|127.0718383,37.6542272":[127.07173624849625,37.65411468175977],"110000249|11350|127.0763721,37.6467215":[127.0764148915125,37.64703001841995],"110000278|11379|127.0690665,37.6494835":[127.06904628406224,37.649566324119924],"110000314|11415|127.0767460,37.6467573":[127.07675481382203,37.647016283002216],"110000264|11365|127.0766007,37.6544907":[127.07664353961304,37.654512532658316]};
  let busVisualPositions={...BUS_ALIGNMENT_BACKUP};
  try{
@@ -2238,7 +2260,7 @@ else kakao.maps.load(async function(){
    const usingBackup=busStopState==='ready'&&busStopMetadata?.partial===true;
    document.getElementById('busBackupNotice').hidden=!usingBackup;
    document.getElementById('busStopSummary').textContent=busStopState==='ready'?
-     (usingBackup?'현재 반경 정류소 목록 · 화면 위치 맞추기 (28곳 백업)':'현재 반경 정류소 목록 · 화면 위치 맞추기'):
+     (usingBackup?'현재 반경 정류소 목록 · 화면 위치 맞추기 (28곳 백업)':'현재 반경 정류소 목록 · 화면 위치 맞추기 (기본 보정 28곳)'):
      ('정류소 데이터 '+(busStopState==='loading'?'로딩 중…':'확인 필요 · 목록 열기'));
    document.getElementById('toggleBusStops').textContent=visible.busStops?'숨기기':'표시하기';
    if(busStopState!=='ready'){
@@ -2287,7 +2309,7 @@ else kakao.maps.load(async function(){
    const sourceFile=busStopMetadata?.source_file||'서울시버스정류소위치정보(20260902).xlsx';
    info.textContent=`${usingBackup?'사용자 검토 정류소 부분 백업 (전체 아님)':'서울시 공식 정류소'} ${busStopFeatures.length.toLocaleString('ko-KR')}개 좌표 로드 · 현재 500m 내부 ${fullyInside}개`+
      (rows.length>fullyInside?` / 원본 10m 원이 경계에 걸치는 ${rows.length-fullyInside}개`:'')+
-     ` · 화면 보정 ${correctedN}개 (주황색) · 출처 ${sourceFile} · 점수/자동 제외 영향 없음`;
+     ` · 검토 위치 28곳 기본 제공 · 현재 반경 화면 보정 ${correctedN}개 (주황색) · 출처 ${sourceFile} · 점수/자동 제외 영향 없음`;
    for(const {f,m,shift,corrected} of rows){
      const li=document.createElement('li'),p=f.properties||{};
      li.style.cssText='padding:4px 0;border-bottom:1px solid #cfe5f2;line-height:1.5';
@@ -2309,6 +2331,12 @@ else kakao.maps.load(async function(){
    }
    if(!rows.length){const li=document.createElement('li');li.textContent='현재 반경에서 정류소가 없습니다. 원본 데이터 범위와 좌표를 확인하세요.';list.appendChild(li);}
  }
+ document.getElementById('busRestoreReviewed28').onclick=function(){
+   busVisualPositions={...BUS_ALIGNMENT_BACKUP};
+   busSavePositions();busCancelAlignment();renderBusStopsLayer();
+   document.getElementById('busStopDetails').open=true;
+   document.getElementById('busRestoreReviewed28').title='직접 확인했던 정류소 28곳의 화면 표시 위치를 복원했습니다. 실제 서울시 정류소 좌표와 점수/제외 기준은 바꾸지 않습니다.';
+ };
  document.getElementById('busResetAllAlignments').onclick=function(){
    if(!Object.keys(busVisualPositions).length)return;
    if(!confirm('모든 버스정류소의 화면 위치 보정을 지우고 서울시 원본 좌표에 표시할까요?'))return;
@@ -5209,7 +5237,8 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
  // Directly preserve the 19 user-selected building IDs and offer either 30m footprint-buffer or 40m point-buffer.
  const CHILDCARE_METHOD_30='user_selected_building_boundary_30m';
  const CHILDCARE_METHOD_40='selected_building_point_40m_trial';
- const CHILDCARE_OVERRIDE_STORAGE='smokespot_public_childcare_default_v4';
+ const CHILDCARE_OVERRIDE_STORAGE='smokespot_public_childcare_default_v10';
+ const CHILDCARE_DEFAULT_40=new Set(['꿈꾸리아이뜰어린이집','반디어린이집']);
  try{
    const stored=JSON.parse(localStorage.getItem(CHILDCARE_OVERRIDE_STORAGE)||'{}');
    if(stored && typeof stored==='object' && !Array.isArray(stored))childcareOverrides=stored;
@@ -5218,7 +5247,7 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
    const options=childcareOptions.get(name);
    if(!options)return null;
    const preferred=childcareOverrides[name];
-   return options[preferred]?preferred:options[CHILDCARE_METHOD_30].properties.default_method;
+   return options[preferred]?preferred:(CHILDCARE_DEFAULT_40.has(name)?CHILDCARE_METHOD_40:CHILDCARE_METHOD_30);
  }
  function refreshChildcareSelection(){
    const chosen=[];
@@ -5245,7 +5274,7 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
      }
      select.value=getChildcareMethod(name);
      select.addEventListener('change',()=>{
-       const def=base.default_method;
+       const def=CHILDCARE_DEFAULT_40.has(name)?CHILDCARE_METHOD_40:CHILDCARE_METHOD_30;
        if(select.value===def)delete childcareOverrides[name];else childcareOverrides[name]=select.value;
        try{localStorage.setItem(CHILDCARE_OVERRIDE_STORAGE,JSON.stringify(childcareOverrides));}catch(e){console.warn('유아시설 설정 저장 실패',e);}
        refreshChildcareSelection();
@@ -5267,8 +5296,8 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
    renderBaseLayers();updateSpatialReadyStatus();renderChildcareRuleEditor();
  };
  try{
-  const gj=await readJSON('./demo_childcare_rules.geojson?v=boundary4');
-  const siteData=await readJSON('./demo_childcare_footprints.geojson?v=boundary4');
+  const gj=await readJSON('./demo_childcare_rules.geojson?v=childcare10');
+  const siteData=await readJSON('./demo_childcare_footprints.geojson?v=childcare10');
   if(gj?.type!=='FeatureCollection'||!Array.isArray(gj.features)||gj.features.length!==38)throw Error('유아시설 2가지 선택영역 38개를 찾을 수 없습니다.');
   if(siteData?.type!=='FeatureCollection'||!Array.isArray(siteData.features)||siteData.features.length!==19)throw Error('유아시설 참고 건물·위치 19개를 찾을 수 없습니다.');
   if(gj.features.some(f=>!['Polygon','MultiPolygon'].includes(f.geometry?.type))||siteData.features.some(f=>!['Polygon','MultiPolygon'].includes(f.geometry?.type)))throw Error('유아시설 경계 도형 형식이 잘못되었습니다.');
@@ -5282,6 +5311,10 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
     options[p.method]=feat;
   }
   if(childcareOptions.size!==19||siteData.features.length!==19||[...childcareOptions.values()].some(p=>!p[CHILDCARE_METHOD_30]||!p[CHILDCARE_METHOD_40]))throw Error('19곳의 30m/40m 양쪽 경계가 모두 준비되지 않았습니다.');
+  for(const [name,opts] of childcareOptions){
+   const expected=CHILDCARE_DEFAULT_40.has(name)?CHILDCARE_METHOD_40:CHILDCARE_METHOD_30;
+   if(opts[CHILDCARE_METHOD_30].properties.default_method!==expected||opts[CHILDCARE_METHOD_40].properties.default_method!==expected)throw Error('시설 '+name+'의 기본 보호거리 파일이 최신 설정과 일치하지 않습니다.');
+  }
   const siteNames=new Set(siteData.features.map(f=>f.properties?.facility_name));
   if(siteNames.size!==19||[...childcareOptions.keys()].some(n=>!siteNames.has(n)))throw Error('시설명과 사용자 선택 도형이 일치하지 않습니다.');
   childcareSiteFeatures=prepareFeatures(siteData.features);
@@ -5313,6 +5346,156 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
    }
    return ids;
  }
+ // v10: school 02 only; user-supplied local review never becomes a network request.
+ const EULJI_SAVED_KEY='smokespot_private_eulji_school02_polygon_v10';
+ function euljiStoredGeometry(){
+   try{
+     const saved=JSON.parse(localStorage.getItem(EULJI_SAVED_KEY)||'null');
+     if(!saved||saved.school_id!=='02'||!saved.geometry||!['Polygon','MultiPolygon'].includes(saved.geometry.type))return null;
+     return saved.geometry;
+   }catch(err){console.warn('을지중 보정 보관값 읽기 실패',err);return null;}
+ }
+ function euljiValidateGeometry(geometry){
+   if(!geometry||!['Polygon','MultiPolygon'].includes(geometry.type))throw Error('Polygon 또는 MultiPolygon 경계만 사용할 수 있습니다.');
+   const site=turf.feature(geometry);
+   if(turf.kinks(site).features.length)throw Error('경계 선분이 교차합니다. 다시 그려 주세요.');
+   const area=turf.area(site);
+   if(!Number.isFinite(area)||area<400||area>80000)throw Error('학교 부지 면적이 유효하지 않습니다 ('+Math.round(area)+'㎡).');
+   const bounds=turf.bbox(site);
+   if(bounds.some(v=>!Number.isFinite(v))||bounds[0]<127.0701||bounds[2]>127.0735||bounds[1]<37.6486||bounds[3]>37.6510)throw Error('을지중학교 주변 범위를 벗어났습니다.');
+   const ref=turf.point([127.0717336,37.64961427]);
+   if(turf.distance(turf.centroid(site),ref,{units:'kilometers'})>.23)throw Error('을지중학교 위치에서 너무 멉니다.');
+   return {site,area};
+ }
+ function euljiReplaceOnly(geometry){
+   const checked=euljiValidateGeometry(geometry);
+   const index=schoolSiteFeatures.findIndex(f=>String(f.properties?.school_id)==='02');
+   const bufferIndex=schoolFeatures.findIndex(f=>String(f.properties?.school_id)==='02');
+   if(index<0||bufferIndex<0)throw Error('을지중학교의 기존 개인 학교 부지 자료(ID 02)를 찾지 못했습니다.');
+   const oldSite=schoolSiteFeatures[index],oldBuffer=schoolFeatures[bufferIndex];
+   const replacement=turf.feature(geometry,{...oldSite.properties,review_status:'user_polygon_browser_only',legal_facility_boundary_confirmed:false,geometry_kind:'school_selected_parcels_combined'});
+   const expanded=turf.buffer(replacement,30,{units:'meters',steps:24});
+   if(!expanded?.geometry||!Number.isFinite(turf.area(expanded)))throw Error('부지 외곽 +30m 계산에 실패했습니다.');
+   expanded.properties={...oldBuffer.properties,review_status:'user_polygon_browser_only',legal_facility_boundary_confirmed:false,buffer_distance_m:30,geometry_kind:'school_parcels_30m_reference_buffer'};
+   const preparedSite=prepareFeatures([replacement])[0],preparedBuffer=prepareFeatures([expanded])[0];
+   if(!euljiParcelPrevious)euljiParcelPrevious={site:oldSite,buffer:oldBuffer};
+   schoolSiteFeatures[index]=preparedSite;
+   schoolFeatures[bufferIndex]=preparedBuffer;
+   return Math.round(checked.area);
+ }
+ function euljiStoreGeometry(geometry){
+   try{localStorage.setItem(EULJI_SAVED_KEY,JSON.stringify({school_id:'02',version:10,geometry}));return true;}
+   catch(err){console.warn('을지중 개인경계 저장 실패',err);return false;}
+ }
+ function euljiDropStorage(){try{localStorage.removeItem(EULJI_SAVED_KEY);}catch(err){console.warn(err);}}
+ function euljiNotifyChanged(message){
+   renderBaseLayers();updateSpatialReadyStatus();
+   ss27Invalidate('을지중학교 개인 부지 경계 변경: 다시 분석해 주세요.');
+   clearCandidates('을지중학교 부지 +30m가 변경됐습니다. 후보지를 다시 탐색해 주세요.');
+   euljiUpdateUI(message);
+ }
+ // School-specific local-only shape editor. It is not a legal boundary certification.
+ const euljiUI={
+  start:document.getElementById('euljiParcelDrawStart'),
+  undo:document.getElementById('euljiParcelUndo'),
+  finish:document.getElementById('euljiParcelFinish'),
+  cancel:document.getElementById('euljiParcelCancel'),
+  restore:document.getElementById('euljiParcelRestore'),
+  export:document.getElementById('euljiParcelExport'),
+  import:document.getElementById('euljiParcelImport'),
+  clearStored:document.getElementById('euljiParcelClearStored'),
+  status:document.getElementById('euljiParcelStatus')
+ };
+ function euljiUpdateUI(message){
+   if(message)euljiUI.status.textContent=message;
+   euljiUI.start.disabled=!schoolParcelLocalActive||euljiParcelDrawActive;
+   euljiUI.undo.disabled=!euljiParcelDrawActive||!euljiParcelVertices.length;
+   euljiUI.finish.disabled=!euljiParcelDrawActive||euljiParcelVertices.length<3;
+   euljiUI.cancel.disabled=!euljiParcelDrawActive;
+   euljiUI.restore.disabled=!schoolParcelLocalActive||!euljiParcelPrevious;
+   euljiUI.export.disabled=!schoolParcelLocalActive||!euljiParcelPrevious;
+   euljiUI.clearStored.disabled=!euljiStoredGeometry();
+ }
+ function euljiClearDraft(){if(euljiParcelDraft){euljiParcelDraft.setMap(null);euljiParcelDraft=null;}}
+ function euljiPreview(){
+   euljiClearDraft();
+   const path=euljiParcelVertices.map(c=>new kakao.maps.LatLng(c[1],c[0]));
+   if(path.length>=3){
+     euljiParcelDraft=new kakao.maps.Polygon({map,path,strokeWeight:3,strokeColor:'#a855f7',strokeOpacity:.95,fillColor:'#c4b5fd',fillOpacity:.2,zIndex:100});
+   }else if(path.length===2){
+     euljiParcelDraft=new kakao.maps.Polyline({map,path,strokeWeight:3,strokeColor:'#a855f7',strokeOpacity:.95,zIndex:100});
+   }
+   euljiUpdateUI('을지중학교 부지 꼭짓점 '+euljiParcelVertices.length+'개 · 지도에서 순서대로 클릭한 후 경계를 확정하세요.');
+ }
+ function euljiStopEdit(){
+   euljiParcelDrawActive=false;euljiParcelVertices=[];euljiClearDraft();map.setCursor('');euljiUpdateUI();
+ }
+ euljiUI.start.onclick=()=>{
+   if(!schoolParcelLocalActive){euljiUpdateUI('먼저 로컬 학교 27개 부지 GeoJSON을 불러와 주세요.');return;}
+   if(busAlignFeature||routePickMode||pinMode||drawing||relocatingCandidateId!==null||addingReviewCandidate||ss26PickMode){
+     euljiUpdateUI('다른 지도 그리기·위치 선택 모드를 종료한 뒤 실행해 주세요.');return;
+   }
+   euljiParcelDrawActive=true;euljiParcelVertices=[];euljiClearDraft();
+   map.setCursor('crosshair');map.panTo(new kakao.maps.LatLng(37.64961427,127.0717336));
+   euljiUpdateUI('을지중학교의 확인한 전체 부지 외곽을 지도에서 3점 이상 클릭해 주세요.');
+ };
+ euljiUI.undo.onclick=()=>{if(euljiParcelDrawActive){euljiParcelVertices.pop();euljiPreview();}};
+ euljiUI.cancel.onclick=()=>{euljiStopEdit();euljiUpdateUI('을지중학교 경계 변경을 취소했어요.');};
+ euljiUI.finish.onclick=()=>{
+   if(!euljiParcelDrawActive||euljiParcelVertices.length<3)return;
+   try{
+     const coords=euljiParcelVertices;
+     if(coords.length>80)throw Error('꼭짓점은 최대 80개입니다.');
+     const polygon=turf.polygon([[...coords,coords[0]]]);
+     const area=euljiReplaceOnly(polygon.geometry);
+     const persisted=euljiStoreGeometry(polygon.geometry);
+     euljiStopEdit();
+     euljiNotifyChanged('을지중 부지 '+area.toLocaleString('ko-KR')+'㎡ · 외곽 +30m 적용'+(persisted?' · 브라우저 저장 완료':' · 저장 실패: GeoJSON 백업 권장')+' · 개인 화면 전용');
+   }catch(err){euljiUpdateUI('경계 검증 실패: '+(err?.message||err));}
+ };
+ euljiUI.restore.onclick=()=>{
+   if(!euljiParcelPrevious)return;
+   const si=schoolSiteFeatures.findIndex(f=>String(f.properties?.school_id)==='02');
+   const bi=schoolFeatures.findIndex(f=>String(f.properties?.school_id)==='02');
+   if(si<0||bi<0)return;
+   schoolSiteFeatures[si]=euljiParcelPrevious.site;
+   schoolFeatures[bi]=euljiParcelPrevious.buffer;
+   euljiParcelPrevious=null;euljiDropStorage();euljiStopEdit();renderBaseLayers();updateSpatialReadyStatus();
+   ss27Invalidate('을지중학교 학교 부지 경계를 이전 상태로 되돌렸습니다.');
+   clearCandidates('을지중학교 경계 복원: 후보지를 다시 계산해 주세요.');
+   euljiUpdateUI('을지중학교 기존 로컬 부지 경계로 돌아왔습니다.');
+ };
+ // Export *only the user's single revised Eulji geometry*, never all 27 private parcels.
+ euljiUI.export.onclick=()=>{
+   if(!schoolParcelLocalActive||!euljiParcelPrevious)return;
+   const f=schoolSiteFeatures.find(f=>String(f.properties?.school_id)==='02');
+   if(!f)return;
+   const one={type:'FeatureCollection',features:[{type:'Feature',properties:{school_id:'02',school_name:'을지중학교',review_status:'personal_local_review',legal_facility_boundary_confirmed:false},geometry:f.geometry}]};
+   const url=URL.createObjectURL(new Blob([JSON.stringify(one,null,2)],{type:'application/geo+json;charset=utf-8'}));
+   const a=document.createElement('a');a.href=url;a.download='SmokeSpot_EuljiMiddle_PERSONAL_ONLY.geojson';a.click();setTimeout(()=>URL.revokeObjectURL(url),2500);
+   euljiUpdateUI('개인 을지중 부지 GeoJSON을 저장했습니다. GitHub에 올리지 마세요.');
+ };
+ euljiUI.import.addEventListener('change',async function(){
+   const file=this.files?.[0];if(!file)return;
+   try{
+     if(!schoolParcelLocalActive)throw Error('먼저 27개 학교 부지 GeoJSON을 불러와 주세요.');
+     if(file.size>1000000)throw Error('을지중 파일은 1MB 이하여야 합니다.');
+     const d=JSON.parse(await file.text());
+     const f=d?.type==='FeatureCollection'&&d.features?.length===1?d.features[0]:d?.type==='Feature'?d:null;
+     if(!f||String(f.properties?.school_id)!=='02')throw Error('을지중학교(ID 02) 한 곳의 GeoJSON을 선택해 주세요.');
+     const area=euljiReplaceOnly(f.geometry);
+     const persisted=euljiStoreGeometry(f.geometry);
+     euljiStopEdit();euljiNotifyChanged('을지중 개인 파일 적용 '+area.toLocaleString('ko-KR')+'㎡ +30m'+(persisted?' · 브라우저 보관 완료':' · 브라우저 보관 실패'));
+   }catch(err){euljiUpdateUI('을지중 파일 불러오기 실패: '+(err?.message||err));}
+   finally{this.value='';}
+ });
+ euljiUI.clearStored.onclick=()=>{
+   euljiDropStorage();
+   if(schoolParcelLocalActive&&euljiParcelPrevious){euljiUI.restore.click();}
+   else euljiUpdateUI('을지중 브라우저 보정 기록을 삭제했습니다. 기존 27개 학교 파일은 변경하지 않았습니다.');
+ };
+ euljiUpdateUI(euljiStoredGeometry()?'저장된 을지중 경계가 있어요. 27개 학교 파일을 불러오면 자동 적용됩니다.':'로컬 학교 부지 자료를 불러오면 사용할 수 있어요.');
+
  schoolParcelLocalInput.addEventListener('change',async(e)=>{
    const files=[...e.target.files];
    if(!files.length)return;
@@ -5340,15 +5523,23 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
        schoolParcelLocalValidate(buffers,'계산한 30m 영역');
      }
      if(!schoolParcelLocalBackup)schoolParcelLocalBackup={schools:schoolFeatures,sites:schoolSiteFeatures};
+     euljiStopEdit();euljiParcelPrevious=null;
      schoolSiteFeatures=prepareFeatures(sites.data.features);
      schoolFeatures=prepareFeatures(buffers);
      schoolParcelLocalActive=true;
+     let euljiAutoRestored=false;
+     const savedEulji=euljiStoredGeometry();
+     if(savedEulji){
+       try{euljiReplaceOnly(savedEulji);euljiAutoRestored=true;}
+       catch(err){console.warn('을지중 이전 보정 적용 실패:',err);euljiUpdateUI('을지중 저장 경계 복원 실패: '+(err?.message||err));}
+     }
+     if(!savedEulji||euljiAutoRestored)euljiUpdateUI(euljiAutoRestored?'을지중 개인 보정 경계 +30m 자동 재적용 완료':'로컬 부지 적용됨 · 을지중만 재검토하려면 새 경계를 그려 주세요.');
      schoolParcelLocalReset.disabled=false;
      renderBaseLayers();
      updateSpatialReadyStatus();
      ss27Invalidate('개인 학교 부지 30m 기준으로 변경했습니다. 분석을 다시 실행해 주세요.');
      clearCandidates('학교 부지 기준을 바꿨으므로 후보지를 다시 탐색해 주세요.');
-     schoolParcelLocalStatus.textContent='적용 완료: 학교 27곳 · 선택 부지 외곽 +30m · '+(suppliedBuffers?'로컬 기존 계산본 사용':'브라우저에서 새로 계산')+' · 개인 화면에만 적용';
+     schoolParcelLocalStatus.textContent='적용 완료: 학교 27곳 · 부지 외곽 +30m · '+(suppliedBuffers?'로컬 계산본 사용':'브라우저에서 계산')+(euljiAutoRestored?' · 을지중 저장 보정 자동 적용':'')+' · 개인 화면 한정';
    }catch(err){schoolParcelLocalStatus.textContent='불러오기 실패: '+(err?.message||err);console.error('개인 학교 부지 파일 오류:',err);}
    schoolParcelLocalInput.value='';
  });
@@ -5357,6 +5548,7 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
    schoolSiteFeatures=schoolParcelLocalBackup.sites;
    schoolFeatures=schoolParcelLocalBackup.schools;
    schoolParcelLocalActive=false;schoolParcelLocalReset.disabled=true;
+   euljiStopEdit();euljiParcelPrevious=null;euljiUpdateUI('로컬 학교 부지 자료를 다시 불러와 주세요.');
    renderBaseLayers();updateSpatialReadyStatus();
    ss27Invalidate('공개용 참고 학교 경계로 돌아왔습니다. 분석을 다시 실행해 주세요.');
    clearCandidates('학교 경계 기준을 되돌렸으므로 후보지를 다시 탐색해 주세요.');
@@ -6592,6 +6784,10 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
  // End school-route feature.
 
  kakao.maps.event.addListener(map,'click',e=>{
+  if(euljiParcelDrawActive){
+   if(euljiParcelVertices.length>=80){euljiUpdateUI('꼭짓점 최대 80개입니다.');return;}
+   euljiParcelVertices.push([e.latLng.getLng(),e.latLng.getLat()]);euljiPreview();return;
+  }
   if(busAlignFeature){busCompleteAlignment(e.latLng);return;}
   if(routePickMode){routeHandleMapClick(e);return;}
   if(relocatingCandidateId!==null||addingReviewCandidate){
@@ -7503,7 +7699,7 @@ kakao.maps.event.addListener(map,'mousemove',e=>{
  if(ss26PickMode==='circle'&&ss26PreviewCircle)ss26PreviewCircle.setPosition(e.latLng);
 });
 kakao.maps.event.addListener(map,'click',e=>{
- if(!ss26PickMode)return;
+ if(euljiParcelDrawActive||!ss26PickMode)return;
  if(pinMode||drawing||relocatingCandidateId!==null||addingReviewCandidate||routePickMode||busAlignFeature)return;
  const coord=[e.latLng.getLng(),e.latLng.getLat()];
  if(ss26Dist(coord,BUILDING_CENTER)>475){ss26Status('현재는 중계동 데이터 검증 중심에서 475m 이내만 지정할 수 있어.');return;}
@@ -8310,6 +8506,7 @@ window.addEventListener('resize',()=>{ss27ColorDraw();ss31UpdatePinPositions();}
  kakao.maps.event.addListener(map,'dragstart',ss30HideHover);
  kakao.maps.event.addListener(map,'zoom_start',ss30HideHover);
 kakao.maps.event.addListener(map,'click',e=>{
+ if(euljiParcelDrawActive)return;
  if(ss33IgnoreOneSectorClick){ss33IgnoreOneSectorClick=false;return;}
  if(!ss27Visible||ss26PickMode||pinMode||drawing||relocatingCandidateId!==null||addingReviewCandidate||routePickMode||busAlignFeature)return;
  const c=[e.latLng.getLng(),e.latLng.getLat()],row=ss27NearestCell(c);
