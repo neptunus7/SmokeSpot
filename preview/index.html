@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#f5f7fb">
-<title>SmokeSpot 혼합 데이터 공개 시연 ·  v3.7.41.18 LOCAL · 보호점수 후보 통합 분석</title>
+<title>SmokeSpot 혼합 데이터 공개 시연 · v3.7.41.18 · 보호점수 후보 통합 분석</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1245,7 +1245,7 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
 <div class="shell">
 <header class="topbar">
  <div class="brand"><div class="logo" aria-hidden="true">S.</div><div><h1>SmokeSpot</h1><small>서울시 흡연환경 · 공간 입지 분석</small></div></div>
- <span class="version">SmokeSpot v3.7.41.18 · 통합 후보 분석 · 로컬 전용</span>
+ <span class="version">SmokeSpot v3.7.41.18 · 공개 시험판 · 가상 인구</span>
 </header>
 
 <div class="layout">
@@ -1275,16 +1275,16 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
 </details>
 <details class="sidebar-collapse" id="childcareRulesPanel"><summary>🧩 유아시설별 적용 방식 조정 (19곳)</summary>
   <section class="panel" style="padding-top:12px">
-    <h2>직접 선택한 건물 기준</h2>
-    <p class="hint">기본값은 <b>건물 이름에 '아파트'가 있으면 40m</b>, 그 외는 <b>선택한 건물 외곽 +30m</b>야. 어린이집 전용동처럼 예외가 있으면 아래에서 바꿔. 변경 내용은 브라우저에 저장되고 <b>후보지 분석에도 즉시 반영</b>돼.</p>
-    <p class="hint">30m는 토지 필지가 아닌 네가 선택한 건물 윤곽이야. 실제 법정 시설부지 경계는 확인된 게 아니야.</p>
+    <h2>시설별 참고영역 기준</h2>
+    <p class="hint">원본 로컬판의 시설별 분류(<b>건물 참고 +30m 9곳 / 건물 중심 +40m 10곳</b>)를 기본값으로 복원했어. 어린이집 전용동처럼 예외가 있으면 아래에서 바꿔. 변경 내용은 브라우저에 저장되고 <b>후보지 분석에도 즉시 반영</b>돼.</p>
+    <p class="hint">30m는 실제 건물 윤곽을 찾은 경우 해당 건물을, 그 외에는 위치 참고도형을 기준으로 계산해. 어느 쪽도 법정 시설부지 경계로 확정된 자료는 아니야.</p>
     <div id="childcareRuleCount" style="font-weight:800;margin:10px 0;color:#0f766e">시설 목록 준비 중…</div>
     <div id="childcareRulesList" style="max-height:420px;overflow:auto;display:grid;gap:8px" aria-live="polite"></div>
     <button type="button" id="resetChildcareRules" class="wide ghost" style="margin-top:10px">19곳 적용 기준을 기본값으로 되돌리기</button>
   </section>
 </details>
 <details class="sidebar-collapse"><summary>데이터 및 사용 안내</summary>
-  <section class="panel notice-panel"><h2>데이터 안내</h2><div class="notice"><b>검토용 분석 자료입니다.</b><br>학교는 직접 지도 대조한 선택 필지의 경계와 +30m 참고영역을 사용합니다. 어린이집·유치원 19곳은 사용자가 직접 선택한 건물 윤곽을 그대로 사용합니다. 기본적으로 건물명에 아파트가 있으면 선택 건물 대표점 +40m(10곳), 그 외는 선택 건물 윤곽 +30m(9곳)입니다. 왼쪽 [유아시설별 기준 조정]에서 개별 변경할 수 있습니다. 둘 다 법정 금연구역을 확정한 것이 아닙니다. 공원 도형도 법적 금연구역을 의미하지 않아요. 누락 시설은 사용자가 지도에서 직접 핀이나 도형으로 등록하며, 자동 탐색 핀은 사용하지 않습니다. 사용자가 등록한 핀과 경계는 미검증 자료이며, +3m는 자체 제외 기준이지 법정 거리 기준이 아닙니다. 표시되지 않는 장소도 합법적인 설치 후보지로 확정되지 않습니다.</div></section>
+  <section class="panel notice-panel"><h2>데이터 안내</h2><div class="notice"><b>검토용 분석 자료입니다.</b><br>학교는 공개 가능한 토지피복도 교육시설 분류 및 건물·위치 참고 도형의 +30m 시연영역을 사용합니다. 학교 전체 부지 경계는 아닙니다. 어린이집·유치원 19곳은 공개된 건물 윤곽을 찾은 13곳과 위치 참고도형 6곳을 사용하며, 원래 로컬판 기본 분류에 따라 건물 중심 +40m 10곳, 건물·위치 참고 +30m 9곳입니다. 왼쪽 [유아시설별 기준 조정]에서 개별 변경할 수 있습니다. 둘 다 법정 금연구역을 확정한 것이 아닙니다. 공원 도형도 법적 금연구역을 의미하지 않아요. 누락 시설은 사용자가 지도에서 직접 핀이나 도형으로 등록하며, 자동 탐색 핀은 사용하지 않습니다. 사용자가 등록한 핀과 경계는 미검증 자료이며, +3m는 자체 제외 기준이지 법정 거리 기준이 아닙니다. 표시되지 않는 장소도 합법적인 설치 후보지로 확정되지 않습니다.</div></section>
 </details>
  </aside>
  <main class="workspace">
@@ -1395,7 +1395,7 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
   <p class="cross-small">인구영향은 같은 주민이 두 통계에 포함될 수 있어 <b>합산 인원수로 계산하지 않아</b>. 3×3은 이동·체류 인구의 정답이 아닌 공간평활화 대안이고, SGIS의 비공개 100m 수치는 0명으로 바꾸지 않아. 관점을 바꾸면 같은 유효 후보풀에서 통합 점수를 다시 계산해. 통계 미공개·결측은 0으로 간주하지 않아.</p>
  </section>
  <p class="cross-note"><b>*비교 주의:</b> 완전 포함 100m 격자 총인구가 해당 250m의 03시 생활인구보다 10배 이상인 경우의 자동 검토 신호. <b>통계 오류율·실제 거주자 수 판정이 아님.</b> 경계에 일부 걸친 100m 격자는 합계에서 제외하므로 250m 전체 총인구가 아니야. 통합 점수는 자동 탐색의 순위에도 적용되지만, 학교·공원·직접 등록 주의시설 등 공간적 제외 기준은 그대로 유지해.</p>
- <p class="cross-note" style="color:#9a3412">SGIS 신청 제공 자료를 가공한 로컬 분석용 파일을 포함해. 이용 조건을 확인하기 전에는 원본 또는 가공 JSON을 공개 GitHub에 올리지 마.</p>
+ <p class="cross-note" style="color:#9a3412">공개 시험판에는 가상 100m·250m 인구 데이터가 사용돼. 실제 국토지리정보원·SGIS 인구 수치를 공개한 것이 아니며 실제 위치의 인구밀도를 의미하지 않아.</p>
 </section>
 
     <section id="populationAuditPanel" class="pop-audit-panel" hidden aria-label="생활인구 격자 검증">
@@ -1597,7 +1597,7 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
         <label class="ss27Toggle"><input type="checkbox" id="ss27Inspect">지도 클릭 시 격자별 상세 점수 보기</label>
         <div id="ss27Status" role="status">지도를 원하는 장소로 이동한 후 위쪽의 [후보지 탐색]을 눌러 줘.</div>
         <div id="ss27Summary" aria-live="polite"></div>
-        <p class="ss27Small">기본 보호점수(건물·보도·주거인구·생활인구)에서 보호시설 경계 가까움에 따라 최대 10점을 뺍니다. 선택 영역 밖의 평가자료까지 모두 참고해 계산합니다. 이 격자는 분석용 표본점이지 10/20m 정밀도의 실제 연기 확산 지도가 아니야. GIS 공개 허가 미확인 로컬 전용.</p>
+        <p class="ss27Small">기본 보호점수(건물·보도·주거인구·생활인구)에서 보호시설 경계 가까움에 따라 최대 10점을 뺍니다. 선택 영역 밖의 평가자료까지 모두 참고해 계산합니다. 이 격자는 분석용 표본점이지 10/20m 정밀도의 실제 연기 확산 지도가 아니야. 공개 시험판의 인구 수치는 가상 자료야.</p>
       </section>
 
     </section>
@@ -1738,7 +1738,7 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
      <summary>보호구역·정류소 데이터 상태 및 출처</summary>
      <div id="school50Info" role="status">학교 실제 위치 기반 가상 참고 원 검증 중…</div>
      <div id="busStopInfo" role="status">서울시 정류소 데이터 확인 중…</div>
-     <p><b>공개 데모 주의:</b> 학교·어린이집의 실제 시설 위치를 참고했지만 표시된 30m/40m/50m 도형은 가상 시연 형상입니다. 50m 원은 실제 학교 출입문 기준 법정 절대보호구역이 아니며, 도형 내 후보지 제외는 프로그램 시연용입니다. 정류장도 가상 위치이며 실제 버스정류소 금연구역을 표시하지 않습니다.</p>
+     <p><b>공개 데모 주의:</b> 학교·어린이집의 실제 시설 위치를 참고하며 일부 교육시설 토지피복·실제 건물 윤곽을 사용하지만, 표시된 30m/40m/50m는 법정 보호구역이 아닌 분석 참고영역입니다. 50m 원은 실제 학교 출입문 기준 법정 절대보호구역이 아니며, 도형 내 후보지 제외는 프로그램 시연용입니다. 정류장도 가상 위치이며 실제 버스정류소 금연구역을 표시하지 않습니다.</p>
      <p>출처와 실제/가상 구분: <a href="DATA_SOURCES_PUBLIC.md" target="_blank" rel="noopener">공개 데모 자료별 출처 안내</a>.</p>
      <a href="https://data.seoul.go.kr/dataList/OA-15067/A/1/datasetView.do" target="_blank" rel="noopener noreferrer">서울시 버스정류소 원본</a>
    </details>
@@ -1776,7 +1776,7 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
           <button type="button" id="protectionLabOpenFull" disabled style="background:#fff;color:#145a42;border:1px solid #82b4a0;border-radius:8px;padding:9px 12px;font-weight:800">🔎 실험 결과 크게 보기</button>
           <button type="button" id="protectionLabOpenTab" style="background:#174ea6;color:#fff;border:0;border-radius:8px;padding:9px 12px;font-weight:800">📄 결과 전용 화면 열기</button>
          </div>
-         <div id="protectionLabStatus" role="status">후보지 탐색 후 시험 가능 · 로컬 전용 · 기존 추천과 분리</div>
+         <div id="protectionLabStatus" role="status">후보지 탐색 후 시험 가능 · 공개 시험판 · 기존 추천과 분리</div>
          <p style="font-size:11px;color:#375d51;margin:7px 0">시험 후 파란색 <b>📄 결과 전용 화면 열기</b> 버튼으로 새 탭에서 표를 볼 수 있어. 기존 '검토 지점 1~5' 카드는 실험 결과표가 아니야.</p>
          <div id="protectionLabResults" style="display:none;overflow-x:auto;line-height:1.6" aria-hidden="true"></div>
          <p style="font-size:11px;color:#52647d">법적 허가·토지 권한은 별도 검토. 원본/가공 GIS 파일 및 이 ZIP을 GitHub Public에 업로드하지 마.</p>
@@ -1902,12 +1902,12 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
     </div>
     <div id="dataToolsMount"></div>
   </section>
-  <div class="site-foot">SmokeSpot LOCAL v3.7.36 · 지도 클릭 탐색 및 점수 검증 · 기존 방식 유지 · 국토지리정보원 국가기본도 실폭하천·차도·보도 면형 및 건물 외곽선 참고 · 현장 검증과 설치 허가 확인 필요</div>
+  <div class="site-foot">SmokeSpot v3.7.41.18 공개 시연 · 원본 UI 유지 · 국가기본도 차도·보도·하천, 건물 및 토지피복 실제 자료 / 인구 가상 자료 · 법적 보호구역과 설치 가능성은 별도 확인 필요</div>
   </details>
  <details class="ss37MethodNotes"><summary>분석 기준·자료 출처·주의사항 자세히</summary><div>
- <p><strong>기존 개발·데이터 설명</strong> — SmokeSpot v3.7.39 · 섹터 기반 탐색 · 로컬 분석용 — 기존 후보지 기능과 공간 제외 설정은 유지합니다. 학교 선택 필지 +30m / 유아시설 19곳은 사용자가 직접 선택한 건물 윤곽을 사용하며, 기본값은 건물경계+30m 9곳 / 건물중심+40m 10곳입니다. 30m 건물 경계는 토지 부지와 다르며 법적 판정은 아닙니다. v3.7.23은 검색 중심 점수를 사용하지 않고, 가까운 인구의 노출 회피와 주변 생활권의 활동량을 분리한 검증용 평가를 제공합니다.</p>
+ <p><strong>기존 개발·데이터 설명</strong> — SmokeSpot v3.7.41.18 · 섹터 기반 공개 시험판 — 원래 후보지 기능과 공간 제외 설정을 유지합니다. 학교 27곳은 공개 가능한 토지피복/건물·위치 기반 참고영역을, 유아시설 19곳은 공공 건물·위치 기반 참고영역을 사용합니다. 기본값은 건물·위치+30m 9곳 / 건물중심+40m 10곳입니다. 30m 건물 경계는 토지 부지와 다르며 법적 판정은 아닙니다. v3.7.23은 검색 중심 점수를 사용하지 않고, 가까운 인구의 노출 회피와 주변 생활권의 활동량을 분리한 검증용 평가를 제공합니다.</p>
  <p>개방형 야외 재떨이·안내 표지 지점의 상대적 보호 조건을 분석합니다. 4m 가상 면적은 설치 검토용 가정이며 연기 확산 범위가 아닙니다.</p>
- <p>기존 모델(35/25/25/15)은 비교 실험의 기준으로 보존합니다. 혼합 모델은 건물·보도 점수에서 절대 기준 75%, 탐색 전체의 상대 이격 기준 25%를 합산합니다. 주거·생활인구는 기존 SGIS·서울시 자료의 고정 정규화를 유지합니다.</p>
+ <p>기존 모델(35/25/25/15)은 비교 실험의 기준으로 보존합니다. 혼합 모델은 건물·보도 점수에서 절대 기준 75%, 탐색 전체의 상대 이격 기준 25%를 합산합니다. 주거·생활인구는 가상 수치를 기존 정규화 규칙에 입력하여 시연합니다.</p>
  <p>법적·물리적 공간 제외는 점수 상대화와 독립입니다. 학교 50m, 유아시설 참고영역, 하천·보도 제외 등의 레이어는 관련 법정 일괄 허가 판정이 아닙니다. 토지 소유권·사용승낙·관리 주체·주출입구·실제 연기 노출은 현장 확인이 필요합니다.</p>
  <p>현장 사례 M1/M2/M3는 확인된 흡연 장소의 정성적 사례이며 공식 설치 허가나 모델 검증의 정답 라벨이 아닙니다. 100m/250m 인구자료를 10m 격자로 표시해도 원자료 해상도가 높아지는 것은 아닙니다.</p>
  </div></details>
@@ -5112,16 +5112,16 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
     stroke:'#8151be',fill:'#ad8ce3',opacity:.25,weight:2,dash:true
   }));
   parks.forEach(f=>addPolygon(f,'parks',{stroke:'#15975a',fill:'#22c55e',opacity:.23,weight:2}));
-  messages.schools='학교 참고 건물·위치 +30m 분석 참고영역 '+schools.length+'곳 (전체 27개교, 법정 경계 확인 아님)';
+  messages.schools='학교 토지피복·건물·위치 +30m 분석 참고영역 '+schools.length+'곳 (전체 27개교, 법정 경계 확인 아님)';
   messages.childcare='유아시설 '+childcare.length+'곳 (선택 건물경계+30m '+childcareFeatures.filter(f=>f.properties?.method==='user_selected_building_boundary_30m').length+'곳 / 건물중심+40m '+childcareFeatures.filter(f=>f.properties?.method==='selected_building_point_40m_trial').length+'곳 · 기준 변경 가능)';
   messages.parks='공공 공원 도형 '+parks.length+'개 (금연 지정 여부 별도 검증)';
-  document.getElementById('regionWarning').textContent='공개 시험판: 실제 건물·차도·보도·하천·공원·토지피복을 사용합니다. 학교·유아시설의 +30m/+40m는 참고 위치에 대응하는 건물 윤곽 또는 임시 위치원으로 계산한 시연영역이며, 실제 시설 전체 부지경계·법정 금연구역이 아닙니다. 학교 50m도 검증된 출입구 경계가 아닙니다. 실제 설치 가능 여부는 별도로 확인해야 합니다.';
+  document.getElementById('regionWarning').textContent='공개 시험판: 실제 건물·차도·보도·하천·공원·토지피복을 사용합니다. 학교 +30m는 일부 교육시설 토지피복, 나머지는 건물·위치 참고 영역이고, 유아시설 +30m/+40m는 실제 건물 윤곽 또는 위치 참고도형 기반의 시연영역이며, 실제 시설 전체 부지경계·법정 금연구역이 아닙니다. 학교 50m도 검증된 출입구 경계가 아닙니다. 실제 설치 가능 여부는 별도로 확인해야 합니다.';
   status();
   if(document.getElementById('ss43LensEnabled')?.checked)requestAnimationFrame(ss43HideBackgroundLayers);
  }
  try{
-  const gj=await readJSON('./demo_school_30m_buffers.geojson');
-  const sites=await readJSON('./demo_school_footprints.geojson');
+  const gj=await readJSON('./demo_school_30m_buffers.geojson?v=boundary4');
+  const sites=await readJSON('./demo_school_footprints.geojson?v=boundary4');
   if(gj?.type!=='FeatureCollection'||!Array.isArray(gj.features)||gj.features.length!==27)throw Error('학교 +30m 도형 27개를 찾을 수 없습니다.');
   if(sites?.type!=='FeatureCollection'||!Array.isArray(sites.features)||sites.features.length!==27)throw Error('학교 참고 건물·위치 27개를 찾을 수 없습니다.');
   const bufferIds=gj.features.map(f=>String(f.properties?.school_id||''));
@@ -5136,7 +5136,7 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
  // Directly preserve the 19 user-selected building IDs and offer either 30m footprint-buffer or 40m point-buffer.
  const CHILDCARE_METHOD_30='user_selected_building_boundary_30m';
  const CHILDCARE_METHOD_40='selected_building_point_40m_trial';
- const CHILDCARE_OVERRIDE_STORAGE='smokespot_375_facility_method_overrides_v1';
+ const CHILDCARE_OVERRIDE_STORAGE='smokespot_public_childcare_default_v4';
  try{
    const stored=JSON.parse(localStorage.getItem(CHILDCARE_OVERRIDE_STORAGE)||'{}');
    if(stored && typeof stored==='object' && !Array.isArray(stored))childcareOverrides=stored;
@@ -5194,8 +5194,8 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
    renderBaseLayers();updateSpatialReadyStatus();renderChildcareRuleEditor();
  };
  try{
-  const gj=await readJSON('./demo_childcare_rules.geojson');
-  const siteData=await readJSON('./demo_childcare_footprints.geojson');
+  const gj=await readJSON('./demo_childcare_rules.geojson?v=boundary4');
+  const siteData=await readJSON('./demo_childcare_footprints.geojson?v=boundary4');
   if(gj?.type!=='FeatureCollection'||!Array.isArray(gj.features)||gj.features.length!==38)throw Error('유아시설 2가지 선택영역 38개를 찾을 수 없습니다.');
   if(siteData?.type!=='FeatureCollection'||!Array.isArray(siteData.features)||siteData.features.length!==19)throw Error('유아시설 참고 건물·위치 19개를 찾을 수 없습니다.');
   if(gj.features.some(f=>!['Polygon','MultiPolygon'].includes(f.geometry?.type))||siteData.features.some(f=>!['Polygon','MultiPolygon'].includes(f.geometry?.type)))throw Error('유아시설 경계 도형 형식이 잘못되었습니다.');
