@@ -1283,6 +1283,19 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
     <button type="button" id="resetChildcareRules" class="wide ghost" style="margin-top:10px">19곳 적용 기준을 기본값으로 되돌리기</button>
   </section>
 </details>
+
+<details class="sidebar-collapse" id="schoolParcelLocalPanel"><summary>🏫 내 학교 부지 경계로 30m 검증</summary>
+ <section class="panel" style="padding-top:12px">
+  <h2>학교 전체 부지 +30m · 개인 검증</h2>
+  <p class="hint">공개판의 건물·토지피복 참고 경계 대신, 로컬 SmokeSpot에서 저장한 <b>학교 선택 부지 27곳</b>을 이 브라우저에서만 적용합니다. 운동장·마당을 포함해 선택한 부지의 외곽에서 30m를 계산합니다. <b>법적 확정 경계는 아닙니다.</b></p>
+  <label class="filebutton" for="schoolParcelLocalFiles">학교 부지 GeoJSON 선택 (1~2개)</label>
+  <input id="schoolParcelLocalFiles" type="file" accept=".geojson,.json,application/geo+json,application/json" multiple aria-describedby="schoolParcelLocalStatus">
+  <p class="hint" style="margin-top:9px">원본 로컬 폴더의 <code>smokespot_school_parcels_review.geojson</code>을 선택하세요. 같은 폴더의 <code>smokespot_school_parcel_30m_review.geojson</code>도 같이 선택하면 원래 계산했던 30m 도형을 그대로 사용합니다. 하나만 선택해도 자동 계산됩니다.</p>
+  <p id="schoolParcelLocalStatus" role="status" style="font-size:12px;line-height:1.5;color:#6b7280">현재 상태: 공개용 참고 경계 사용 중</p>
+  <button type="button" id="schoolParcelLocalReset" class="wide ghost" style="margin-top:8px" disabled>공개용 참고 경계로 되돌리기</button>
+  <p class="hint" style="margin-top:8px"><b>공개 주의:</b> 이 입력은 GitHub에 파일을 저장하지 않습니다. 페이지 새로고침 시 해제됩니다. 지적도에서 선택한 원본 GeoJSON은 별도의 재배포 허가 전까지 GitHub에 업로드하지 마세요.</p>
+ </section>
+</details>
 <details class="sidebar-collapse"><summary>데이터 및 사용 안내</summary>
   <section class="panel notice-panel"><h2>데이터 안내</h2><div class="notice"><b>검토용 분석 자료입니다.</b><br>학교는 공개 가능한 토지피복도 교육시설 분류 및 건물·위치 참고 도형의 +30m 시연영역을 사용합니다. 학교 전체 부지 경계는 아닙니다. 어린이집·유치원 19곳은 공개된 건물 윤곽을 찾은 13곳과 위치 참고도형 6곳을 사용하며, 원래 로컬판 기본 분류에 따라 건물 중심 +40m 10곳, 건물·위치 참고 +30m 9곳입니다. 왼쪽 [유아시설별 기준 조정]에서 개별 변경할 수 있습니다. 둘 다 법정 금연구역을 확정한 것이 아닙니다. 공원 도형도 법적 금연구역을 의미하지 않아요. 누락 시설은 사용자가 지도에서 직접 핀이나 도형으로 등록하며, 자동 탐색 핀은 사용하지 않습니다. 사용자가 등록한 핀과 경계는 미검증 자료이며, +3m는 자체 제외 기준이지 법정 거리 기준이 아닙니다. 표시되지 않는 장소도 합법적인 설치 후보지로 확정되지 않습니다.</div></section>
 </details>
@@ -1954,6 +1967,7 @@ else kakao.maps.load(async function(){
  const CENTER=new kakao.maps.LatLng(37.650555,127.074200);
  let currentCenter=CENTER;
  const geocoder=new kakao.maps.services.Geocoder();
+ let schoolParcelLocalActive=false,schoolParcelLocalBackup=null;
  let schoolFeatures=[],schoolSiteFeatures=[],childcareFeatures=[],childcareSiteFeatures=[],childcareOptions=new Map(),childcareOverrides={},parkFeatures=[],schoolsLoaded=false,schoolError='',childcareLoaded=false,childcareError='';
  let buildingFeatures=[],buildingsLoaded=false,buildingError='';
  let roadFeatures=[],roadsLoaded=false,roadError='';
@@ -5112,10 +5126,10 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
     stroke:'#8151be',fill:'#ad8ce3',opacity:.25,weight:2,dash:true
   }));
   parks.forEach(f=>addPolygon(f,'parks',{stroke:'#15975a',fill:'#22c55e',opacity:.23,weight:2}));
-  messages.schools='학교 토지피복·건물·위치 +30m 분석 참고영역 '+schools.length+'곳 (전체 27개교, 법정 경계 확인 아님)';
+  messages.schools=(schoolParcelLocalActive?'내 로컬 학교 선택 부지 +30m 검증영역 ':'학교 토지피복·건물·위치 +30m 분석 참고영역 ')+schools.length+'곳 (전체 27개교, 법정 경계 확인 아님)';
   messages.childcare='유아시설 '+childcare.length+'곳 (선택 건물경계+30m '+childcareFeatures.filter(f=>f.properties?.method==='user_selected_building_boundary_30m').length+'곳 / 건물중심+40m '+childcareFeatures.filter(f=>f.properties?.method==='selected_building_point_40m_trial').length+'곳 · 기준 변경 가능)';
   messages.parks='공공 공원 도형 '+parks.length+'개 (금연 지정 여부 별도 검증)';
-  document.getElementById('regionWarning').textContent='공개 시험판: 실제 건물·차도·보도·하천·공원·토지피복을 사용합니다. 학교 +30m는 일부 교육시설 토지피복, 나머지는 건물·위치 참고 영역이고, 유아시설 +30m/+40m는 실제 건물 윤곽 또는 위치 참고도형 기반의 시연영역이며, 실제 시설 전체 부지경계·법정 금연구역이 아닙니다. 학교 50m도 검증된 출입구 경계가 아닙니다. 실제 설치 가능 여부는 별도로 확인해야 합니다.';
+  document.getElementById('regionWarning').textContent=schoolParcelLocalActive?'개인 검증 모드: 네 브라우저에서만 선택 학교 부지 27곳의 +30m 경계를 반영합니다. 공개 사이트의 기본 경계는 변경되지 않습니다. 선택 필지는 법적 시설경계 확정 자료가 아니며 학교 50m와 설치 허가도 별도 확인이 필요합니다.':'공개 시험판: 실제 건물·차도·보도·하천·공원·토지피복을 사용합니다. 학교 +30m는 일부 교육시설 토지피복, 나머지는 건물·위치 참고 영역이고, 유아시설 +30m/+40m는 실제 건물 윤곽 또는 위치 참고도형 기반의 시연영역이며, 실제 시설 전체 부지경계·법정 금연구역이 아닙니다. 학교 50m도 검증된 출입구 경계가 아닙니다. 실제 설치 가능 여부는 별도로 확인해야 합니다.';
   status();
   if(document.getElementById('ss43LensEnabled')?.checked)requestAnimationFrame(ss43HideBackgroundLayers);
  }
@@ -5221,6 +5235,74 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
   parkFeatures=prepareFeatures(gj.features||[]);
  }catch(e){messages.parks='공원 데이터 오류: '+e.message;console.error(e);}
  renderBaseLayers();
+
+ // LOCAL ONLY: opt-in school-site review. Never fetch, persist, or publish this user's cadastral-derived file.
+ const schoolParcelLocalInput=document.getElementById('schoolParcelLocalFiles');
+ const schoolParcelLocalStatus=document.getElementById('schoolParcelLocalStatus');
+ const schoolParcelLocalReset=document.getElementById('schoolParcelLocalReset');
+ function schoolParcelLocalValidate(feats,kind){
+   if(!Array.isArray(feats)||feats.length!==27)throw Error('학교 '+kind+'은 27개 도형이어야 합니다.');
+   const ids=new Set();
+   for(const f of feats){
+     const id=String(f.properties?.school_id||'');
+     if(!id||ids.has(id))throw Error('학교 ID가 없거나 중복되었습니다: '+id);
+     ids.add(id);
+     if(!['Polygon','MultiPolygon'].includes(f.geometry?.type))throw Error('학교 '+id+' 도형이 면형이 아닙니다.');
+     const bb=turf.bbox(f);
+     if(bb.some(x=>!Number.isFinite(x))||bb[0]<127.01||bb[2]>127.15||bb[1]<37.60||bb[3]>37.72)throw Error('분석 지역과 무관하거나 잘못된 좌표가 있습니다: '+id);
+     if(turf.area(f)<=1)throw Error('학교 '+id+'의 면적이 잘못되었습니다.');
+   }
+   return ids;
+ }
+ schoolParcelLocalInput.addEventListener('change',async(e)=>{
+   const files=[...e.target.files];
+   if(!files.length)return;
+   try{
+     if(files.length>2||files.some(f=>f.size>10000000))throw Error('최대 2개, 파일당 10MB 이하만 선택해 주세요.');
+     const parsed=await Promise.all(files.map(async f=>({name:f.name,data:JSON.parse(await f.text())})));
+     const sites=parsed.find(x=>x.data?.features?.[0]?.properties?.geometry_kind==='school_selected_parcels_combined');
+     const suppliedBuffers=parsed.find(x=>x.data?.features?.[0]?.properties?.geometry_kind==='school_parcels_30m_reference_buffer');
+     if(!sites)throw Error('smokespot_school_parcels_review.geojson 학교 부지 파일을 선택해 주세요.');
+     if(parsed.some(x=>x.data?.type!=='FeatureCollection'))throw Error('GeoJSON FeatureCollection 형식이 아닙니다.');
+     const ids=schoolParcelLocalValidate(sites.data.features,'선택 부지');
+     let buffers=[];
+     if(suppliedBuffers){
+       const bIds=schoolParcelLocalValidate(suppliedBuffers.data.features,'30m 참고영역');
+       if([...ids].some(id=>!bIds.has(id)))throw Error('부지와 30m 도형의 학교 ID가 일치하지 않습니다.');
+       if(suppliedBuffers.data.features.some(f=>Number(f.properties?.buffer_distance_m)!==30))throw Error('30m가 아닌 참조영역이 포함돼 있습니다.');
+       buffers=suppliedBuffers.data.features;
+     }else{
+       buffers=sites.data.features.map(f=>{
+         const buf=turf.buffer(f,30,{units:'meters',steps:24});
+         if(!buf?.geometry)throw Error((f.properties?.school_name||'학교')+' 30m 도형 계산 실패');
+         buf.properties={...f.properties,buffer_distance_m:30,geometry_kind:'school_parcels_30m_reference_buffer',legal_facility_boundary_confirmed:false};
+         return buf;
+       });
+       schoolParcelLocalValidate(buffers,'계산한 30m 영역');
+     }
+     if(!schoolParcelLocalBackup)schoolParcelLocalBackup={schools:schoolFeatures,sites:schoolSiteFeatures};
+     schoolSiteFeatures=prepareFeatures(sites.data.features);
+     schoolFeatures=prepareFeatures(buffers);
+     schoolParcelLocalActive=true;
+     schoolParcelLocalReset.disabled=false;
+     renderBaseLayers();
+     updateSpatialReadyStatus();
+     ss27Invalidate('개인 학교 부지 30m 기준으로 변경했습니다. 분석을 다시 실행해 주세요.');
+     clearCandidates('학교 부지 기준을 바꿨으므로 후보지를 다시 탐색해 주세요.');
+     schoolParcelLocalStatus.textContent='적용 완료: 학교 27곳 · 선택 부지 외곽 +30m · '+(suppliedBuffers?'로컬 기존 계산본 사용':'브라우저에서 새로 계산')+' · 개인 화면에만 적용';
+   }catch(err){schoolParcelLocalStatus.textContent='불러오기 실패: '+(err?.message||err);console.error('개인 학교 부지 파일 오류:',err);}
+   schoolParcelLocalInput.value='';
+ });
+ schoolParcelLocalReset.addEventListener('click',()=>{
+   if(!schoolParcelLocalBackup)return;
+   schoolSiteFeatures=schoolParcelLocalBackup.sites;
+   schoolFeatures=schoolParcelLocalBackup.schools;
+   schoolParcelLocalActive=false;schoolParcelLocalReset.disabled=true;
+   renderBaseLayers();updateSpatialReadyStatus();
+   ss27Invalidate('공개용 참고 학교 경계로 돌아왔습니다. 분석을 다시 실행해 주세요.');
+   clearCandidates('학교 경계 기준을 되돌렸으므로 후보지를 다시 탐색해 주세요.');
+   schoolParcelLocalStatus.textContent='현재 상태: 공개용 참고 경계 사용 중';
+ });
  const kindName={playground:'놀이터',park:'공원',other:'기타 주의시설'};
  const pinContent=(kind)=>{const el=document.createElement('button');el.type='button';el.className='facility-icon '+(kind==='park'?'facility-park':'facility-play');el.textContent=kind==='park'?'♣':kind==='other'?'?':'!';el.style.cssText+=';border:3px solid white;box-shadow:0 2px 7px #0003;cursor:pointer';return el;};
  function updateButtons(){
