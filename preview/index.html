@@ -1245,7 +1245,7 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
 <div class="shell">
 <header class="topbar">
  <div class="brand"><div class="logo" aria-hidden="true">S.</div><div><h1>SmokeSpot</h1><small>서울시 흡연환경 · 공간 입지 분석</small></div></div>
- <span class="version">SmokeSpot v3.7.41.18 · 공개 시험판 v10 · 가상 인구</span>
+ <span class="version">SmokeSpot v3.7.41.18 · 공개 시험판 v14 · 가상 인구</span>
 </header>
 
 <div class="layout">
@@ -2043,6 +2043,24 @@ else kakao.maps.load(async function(){
  let heatRenderKey='';
  const messages={region:'중계동 반경 500m',schools:'학교 위치·건물 참고영역 로딩 중',childcare:'유아시설 위치·건물 참고영역 로딩 중',parks:'인근 공원 참고도형 로딩 중',places:'등록된 시설 없음',draw:'그리기 버튼을 눌러 시작하세요'};
  let saved=[],drawing=false,vertices=[],draftLine=null,pinMode=false,selectedId=null,upgradeId=null;
+ let publicPlaygroundLoadNote='공개 놀이터 자료 확인 중…';
+ let selectedManualHighlights=[];
+ function clearManualHighlight(){
+  selectedManualHighlights.forEach(o=>{try{o.setMap(null);}catch(_){}});
+  selectedManualHighlights=[];
+ }
+ function highlightManualItem(item){
+  clearManualHighlight();if(!item)return;
+  if(item.site&&item.site.geometry){
+   for(const path of polygonPaths(item.site.geometry)){
+    const poly=new kakao.maps.Polygon({map,path,strokeWeight:5,strokeColor:'#e11d48',strokeOpacity:1,fillColor:'#fb7185',fillOpacity:.10,zIndex:20});
+    selectedManualHighlights.push(poly);
+   }
+  }else if(item.pin){
+   const circle=new kakao.maps.Circle({map,center:new kakao.maps.LatLng(item.pin[1],item.pin[0]),radius:8,strokeWeight:4,strokeColor:'#e11d48',strokeOpacity:1,fillColor:'#fb7185',fillOpacity:.12,zIndex:20});
+   selectedManualHighlights.push(circle);
+  }
+ }
  const STORAGE_KEY='smokespot_v09_playgrounds_local_v1';
  function status(){
   statusEl.textContent=Object.values(messages).join(' | ')+'\n직접 등록한 시설: '+saved.length+'개 (공개 배포 시설 + 브라우저 임시 등록)';
@@ -5261,10 +5279,14 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
   childcare.filter(f=>f.properties?.method==='selected_building_point_40m_trial').forEach(f=>addPolygon(f,'childcare',{
     stroke:'#8151be',fill:'#ad8ce3',opacity:.25,weight:2,dash:true
   }));
-  parks.forEach(f=>addPolygon(f,'parks',{stroke:'#15975a',fill:'#22c55e',opacity:.23,weight:2}));
+  parks.forEach(f=>{
+    const review=String(f.properties?.name||'').includes('양지마을마당');
+    // Position needs visual confirmation; do not silently change screening logic.
+    addPolygon(f,'parks',review?{stroke:'#b45309',fill:'#fde68a',opacity:.10,weight:2,dash:true}:{stroke:'#15975a',fill:'#22c55e',opacity:.23,weight:2});
+  });
   messages.schools=(schoolParcelLocalActive?'내 로컬 학교 선택 부지 +30m 검증영역 ':'학교 토지피복·건물·위치 +30m 분석 참고영역 ')+schools.length+'곳 (전체 27개교, 법정 경계 확인 아님)';
   messages.childcare='유아시설 '+childcare.length+'곳 (선택 건물경계+30m '+childcareFeatures.filter(f=>f.properties?.method==='user_selected_building_boundary_30m').length+'곳 / 건물중심+40m '+childcareFeatures.filter(f=>f.properties?.method==='selected_building_point_40m_trial').length+'곳 · 기준 변경 가능)';
-  messages.parks='공공 공원 도형 '+parks.length+'개 (금연 지정 여부 별도 검증)';
+  messages.parks='공공 공원 도형 '+parks.length+'개 (양지마을마당 위치·금연 지정 여부 확인 필요)';
   document.getElementById('regionWarning').textContent=schoolParcelLocalActive?'개인 검증 모드: 네 브라우저에서만 선택 학교 부지 27곳의 +30m 경계를 반영합니다. 공개 사이트의 기본 경계는 변경되지 않습니다. 선택 필지는 법적 시설경계 확정 자료가 아니며 학교 50m와 설치 허가도 별도 확인이 필요합니다.':'공개 시험판: 실제 건물·차도·보도·하천·공원·토지피복을 사용합니다. 학교 +30m는 일부 교육시설 토지피복, 나머지는 건물·위치 참고 영역이고, 유아시설 +30m/+40m는 실제 건물 윤곽 또는 위치 참고도형 기반의 시연영역이며, 실제 시설 전체 부지경계·법정 금연구역이 아닙니다. 학교 절대보호 50m는 공개 기본판에서 제외/표시하지 않으며, 개인 파일을 읽었을 때만 분석에 반영됩니다. 실제 설치 가능 여부는 별도로 확인해야 합니다.';
   status();
   if(document.getElementById('ss43LensEnabled')?.checked)requestAnimationFrame(ss43HideBackgroundLayers);
@@ -5617,11 +5639,25 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
   document.getElementById('undoPlayground').disabled=!selectedId;
   map.setCursor(pinMode||drawing?'crosshair':'');
  }
- function selectItem(id){selectedId=id;const item=saved.find(i=>i.id===id);if(item){messages.draw='선택: '+item.name+' ('+kindName[item.kind]+', '+(item.site?'추정 경계':'위치 핀')+')';}updateButtons();renderManualList();status();}
+ function selectItem(id){selectedId=id;const item=saved.find(i=>i.id===id);if(item){messages.draw='선택: '+item.name+' ('+kindName[item.kind]+', '+(item.site?'추정 경계':'위치 핀')+')';}highlightManualItem(item);updateButtons();renderManualList();status();}
  function renderManualList(){
   const host=document.getElementById('manualList');host.replaceChildren();
   const inRange=saved.filter(item=>item.site?intersectsStudy(item.buffer):turf.distance(turf.point(item.pin),turf.point([currentCenter.getLng(),currentCenter.getLat()]),{units:'kilometers'})<=.55);
-  for(const item of inRange){const btn=document.createElement('button');btn.type='button';btn.className='place';btn.style.cssText='display:block;width:100%;text-align:left;margin:3px 0;background:'+(selectedId===item.id?'#edf2ff':'white');btn.textContent=(selectedId===item.id?'✓ ':'')+(item.site?'⬡ ':'📍 ')+item.name+' · '+kindName[item.kind];btn.onclick=()=>{selectItem(item.id);if(item.pin)map.panTo(new kakao.maps.LatLng(item.pin[1],item.pin[0]));else {const p=turf.centroid(item.site).geometry.coordinates;map.panTo(new kakao.maps.LatLng(p[1],p[0]));}};host.appendChild(btn);}
+  const box=document.createElement('div');box.style.cssText='font-size:12px;font-weight:700;background:#eaf0ff;color:#1d4289;padding:8px;border:1px solid #b9c9f5;border-radius:8px;margin-bottom:6px;line-height:1.6';
+  const pgAll=saved.filter(item=>item.kind==='playground').length;
+  const pgVisible=inRange.filter(item=>item.kind==='playground').length;
+  box.textContent=`저장된 시설 ${saved.length}개 (놀이터 ${pgAll}개) | 현재 500m 범위 ${inRange.length}개 (놀이터 ${pgVisible}개)`;
+  host.appendChild(box);
+  const source=document.createElement('div');source.style.cssText='font-size:11px;color:#52657f;margin:0 0 8px 0;line-height:1.5';source.textContent=publicPlaygroundLoadNote;host.appendChild(source);
+  for(const [index,item] of inRange.entries()){
+   const btn=document.createElement('button');btn.type='button';btn.className='place';
+   btn.style.cssText='display:block;width:100%;text-align:left;margin:3px 0;background:'+(selectedId===item.id?'#edf2ff':'white');
+   const seq=String(index+1).padStart(2,'0');
+   btn.textContent=(selectedId===item.id?'✓ ':'')+seq+' · '+(item.site?'⬡ ':'📍 ')+item.name+' · '+kindName[item.kind];
+   const p=item.pin||turf.centroid(item.site).geometry.coordinates;
+   btn.title=`지도에서 위치 확인 · 경도 ${p[0].toFixed(6)} · 위도 ${p[1].toFixed(6)} · ${item.__publicSource?'공개 자료':'브라우저 저장'}`;
+   btn.onclick=()=>{selectItem(item.id);map.panTo(new kakao.maps.LatLng(p[1],p[0]));};host.appendChild(btn);
+  }
   if(!inRange.length){const txt=document.createElement('p');txt.className='hint';txt.textContent='이 분석 범위에 직접 등록한 시설이 없습니다.';host.appendChild(txt);}
  }
  document.getElementById('addressForm').addEventListener('submit',function(e){
@@ -5665,6 +5701,7 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
    }
   }
   messages.places='직접 등록 '+saved.length+'개 (핀 '+saved.filter(i=>!i.site).length+' / 추정 영역 '+saved.filter(i=>!!i.site).length+')';
+  if(selectedId)highlightManualItem(saved.find(i=>i.id===selectedId));else clearManualHighlight();
   renderManualList();updateButtons();status();
  }
  function removeDraft(){if(draftLine){draftLine.setMap(null);draftLine=null;}}
@@ -6924,7 +6961,7 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
    selectedId=id;saveLocal();endDrawing();drawSaved();messages.draw='추정 경계 등록 완료 (+3m는 자체 여유구역, 법정 기준 아님)';status();
   }catch(e){alert('영역 생성 실패: '+e.message+'\n외곽선이 서로 교차하지 않는지 확인하세요.');console.error(e);}
  };
- document.getElementById('undoPlayground').onclick=()=>{if(!selectedId)return;const item=saved.find(i=>i.id===selectedId);if(!item)return;if(!confirm(item.name+' 항목을 삭제할까요?'))return;if(item.__publicSource){publicHiddenIds.add(item.id);try{localStorage.setItem(PUBLIC_MANUAL_HIDDEN_KEY,JSON.stringify([...publicHiddenIds]));}catch(e){console.warn('공개항목 숨김 기록 실패',e);}}saved=saved.filter(i=>i.id!==selectedId);selectedId=null;saveLocal();drawSaved();};
+ document.getElementById('undoPlayground').onclick=()=>{if(!selectedId)return;const item=saved.find(i=>i.id===selectedId);if(!item)return;if(!confirm(item.name+' 항목을 삭제할까요?'))return;if(item.__publicSource){publicHiddenIds.add(item.id);try{localStorage.setItem(PUBLIC_MANUAL_HIDDEN_KEY,JSON.stringify([...publicHiddenIds]));}catch(e){console.warn('공개항목 숨김 기록 실패',e);}}saved=saved.filter(i=>i.id!==selectedId);selectedId=null;clearManualHighlight();saveLocal();drawSaved();};
  document.getElementById('exportGeoJSON').onclick=()=>{
   const features=saved.flatMap(item=>item.site?[item.site,item.buffer]:[turf.point(item.pin,{id:item.id,name:item.name,kind:item.kind,source:'user_marked',verification:'unverified',zone_type:'manual_facility_pin'})]);
   const blob=new Blob([JSON.stringify({type:'FeatureCollection',features},null,2)],{type:'application/geo+json'});
@@ -6972,33 +7009,54 @@ fetch('./demo_100m_residential.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.st
   async function loadPublicPlaygrounds(){
     try{
       const response=await fetch(PUBLIC_MANUAL_FILENAME,{cache:'no-store'});
-      if(!response.ok){if(response.status!==404)console.warn('공개 놀이터 자료 HTTP',response.status);return;}
+      if(!response.ok){
+       publicPlaygroundLoadNote='공개 놀이터 파일 확인 불가 (HTTP '+response.status+'). 브라우저에 저장된 시설만 표시합니다.';
+       renderManualList();return;
+      }
       const gj=await response.json();
       if(gj?.type!=='FeatureCollection'||!Array.isArray(gj.features))throw Error('FeatureCollection 형식 필요');
       if(gj.features.length>400)throw Error('공개 놀이터 최대 400개 피처 초과');
-      const buffers=new Map();
-      const imported=[];
+      const buffers=new Map(), imported=[];
       for(const f of gj.features){const p=f?.properties||{};
-        if(p.zone_type==='playground_3m_self_exclusion'&&p.id&&f.geometry?.type==='Polygon')buffers.set(p.id,f);
+       if(p.zone_type==='playground_3m_self_exclusion'&&p.id&&f.geometry?.type==='Polygon')buffers.set(String(p.id),f);
       }
       const validCoord=c=>Array.isArray(c)&&c.length>=2&&Number.isFinite(c[0])&&Number.isFinite(c[1])&&c[0]>=126.9&&c[0]<=127.3&&c[1]>=37.4&&c[1]<=37.9;
+      let legacyFixed=0,skipped=0;
       for(const [i,f] of gj.features.entries()){
-        const p=f?.properties||{};if(!['playground','park','other'].includes(p.kind))continue;
-        if(p.zone_type==='manual_facility_pin'&&f.geometry?.type==='Point'&&validCoord(f.geometry.coordinates)){
-          imported.push({id:String(p.id||'public-pin-'+i),name:String(p.name||'직접 조사 시설'),kind:p.kind,pin:f.geometry.coordinates,__publicSource:true});
-        }else if(p.zone_type==='playground_site'&&f.geometry?.type==='Polygon'){
-          const ring=f.geometry.coordinates?.[0];
-          if(!Array.isArray(ring)||ring.length<4||ring.length>600||!ring.every(validCoord))continue;
-          const id=String(p.id||'public-site-'+i);
-          const buffer=buffers.get(id)||turf.buffer(f,3,{units:'meters'});
-          imported.push({id,name:String(p.name||'직접 조사 시설'),kind:p.kind,site:f,buffer,__publicSource:true});
-        }
+       const p=f?.properties||{};
+       if(!['playground_site','manual_facility_pin'].includes(p.zone_type))continue;
+       // Historical playground geometries were published without kind/id.
+       // Only this dedicated public_playgrounds file allows missing kind to mean playground.
+       const kind=p.kind||'playground';
+       if(!['playground','park','other'].includes(kind)){skipped++;continue;}
+       if(p.zone_type==='manual_facility_pin'&&f.geometry?.type==='Point'&&validCoord(f.geometry.coordinates)){
+         const id=String(p.id||'public-pin-'+i);
+         if(!p.kind||!p.id)legacyFixed++;
+         imported.push({id,name:String(p.name||'직접 조사 시설'),kind,pin:f.geometry.coordinates,__publicSource:true});
+       }else if(p.zone_type==='playground_site'&&f.geometry?.type==='Polygon'){
+         const ring=f.geometry.coordinates?.[0];
+         if(!Array.isArray(ring)||ring.length<4||ring.length>600||!ring.every(validCoord)){skipped++;continue;}
+         const id=String(p.id||'public-site-'+i);
+         if(!p.kind||!p.id)legacyFixed++;
+         const adjacent=gj.features[i+1];
+         const legacyBuffer=adjacent?.properties?.zone_type==='playground_3m_self_exclusion'&&!adjacent?.properties?.id&&adjacent?.geometry?.type==='Polygon'?adjacent:null;
+         const buffer=buffers.get(id)||legacyBuffer||turf.buffer(f,3,{units:'meters'});
+         const site={...f,properties:{...p,id,kind}};
+         const fixedBuffer={...buffer,properties:{...(buffer.properties||{}),id,kind,zone_type:'playground_3m_self_exclusion'}};
+         imported.push({id,name:String(p.name||'직접 조사 시설'),kind,site,buffer:fixedBuffer,__publicSource:true});
+       }else{skipped++;}
       }
       const existing=new Set(saved.map(x=>x.id));
-      const merged=imported.filter(x=>!existing.has(x.id)&&!publicHiddenIds.has(x.id));
+      const presentShapes=new Set(saved.filter(x=>x.site).map(x=>JSON.stringify(x.site.geometry?.coordinates)));
+      const merged=imported.filter(x=>!existing.has(x.id)&&!publicHiddenIds.has(x.id)&&(!x.site||!presentShapes.has(JSON.stringify(x.site.geometry?.coordinates))));
+      publicPlaygroundLoadNote=`공개 파일에서 ${imported.length}개 인식 · 새로 표시 ${merged.length}개 · 이전 형식 복원 ${legacyFixed}개`+(skipped?` · 형식 확인 필요 ${skipped}개`:'');
       if(merged.length){saved=[...saved,...merged];drawSaved();}
-      console.info('SmokeSpot: public manual playgrounds loaded',merged.length);
-    }catch(err){console.warn('공개 놀이터 GeoJSON 읽기 오류 (기존 분석 계속)',err);}
+      else renderManualList();
+      console.info('SmokeSpot: public playgrounds loaded', {imported:imported.length, added:merged.length,legacyFixed,skipped});
+    }catch(err){
+      publicPlaygroundLoadNote='공개 놀이터 자료 오류: '+err.message;
+      renderManualList();console.warn('공개 놀이터 GeoJSON 읽기 오류 (기존 분석 계속)',err);
+    }
   }
   loadPublicPlaygrounds();
 
