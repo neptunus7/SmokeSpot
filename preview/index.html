@@ -2072,28 +2072,32 @@ else kakao.maps.load(async function(){
    const button=document.getElementById('toggleSchool50');
    button.textContent=visible.school50?'숨기기':'표시하기';
    button.setAttribute('aria-pressed',String(visible.school50));
-   const messages=[`v3.7.20.2 내장자료 정상 · 절대보호구역 총 ${school50Features.length}개`,
+   const messages=[`가상 보호시설 참고영역 정상 · ${school50Features.length}개 (실제 법적 경계 아님)`,
      `현재 500m 교차 ${intersections}개 · 표시 ${drawn}개`,
      defaultCenter?'기본 위치 사전 클리핑':'이동한 위치 · 확보된 자료 범위 내 표시'];
    if(errors)messages.push('도형 처리 경고 '+errors+'개');
    if(uncropped)messages.push('일부 도형 500m 미클리핑 '+uncropped+'개');
-   messages.push('입지 검토상 선제 제외 적용 · 금연지정 학교별 대조 필요 · 표시 ON/OFF와 무관');
+   messages.push('가상 보호구역을 예시용으로 제외 · 실제 법적 금연구역/설치 허가와 무관 · 표시 ON/OFF와 제외 규칙은 별개');
    info.textContent=messages.join(' · ');
  }
  function loadSchool50Layer(){
    try{
      const full=JSON.parse(document.getElementById('school50EmbeddedFull').textContent);
      const clipped=JSON.parse(document.getElementById('school50EmbeddedClipped500').textContent);
+     // Public preview: both embedded sets were deliberately replaced with 27
+     // entirely fictional polygons, not the local app's 15 + 9 real-source shapes.
+     // Verify the demo marker so this check cannot accidentally accept local data.
      const valid=(d,n)=>d?.type==='FeatureCollection'&&Array.isArray(d.features)&&d.features.length===n
-       &&d.features.every(f=>f?.properties?.uname==='절대보호구역'
+       &&d.features.every(f=>f?.properties?.synthetic_demo===true
+       &&f.properties?.uname==='가상 학교 보호 참고영역'
        &&['Polygon','MultiPolygon'].includes(f?.geometry?.type)
        &&Array.isArray(f.geometry.coordinates));
-     if(!valid(full,15)||!valid(clipped,9))throw Error('내장 도형의 개수 또는 형식 불일치');
+     if(!valid(full,27)||!valid(clipped,27))throw Error('가상 학교 보호 참고영역 27개 또는 형식 불일치');
      school50Features=prepareFeatures(full.features);
      school50DefaultClipped=prepareFeatures(clipped.features);
      school50State='ready';
      renderSchool50Layer();
-     console.info('SmokeSpot v3.7.20.2: school 50m embedded load OK (15 full / 9 default clipped).');
+     console.info('SmokeSpot public preview: fictional school boundary polygons ready (27 full / 27 preview).');
    }catch(e){
      school50State=e.message||'알 수 없는 오류';
      console.error('학교 50m 내장 데이터 준비 실패',e);
