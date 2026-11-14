@@ -1734,7 +1734,7 @@ html,body{font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:
     <div class="layer"><span class="layer-title"><i class="swatch play"></i>직접 등록한 시설</span><button id="togglePlaygrounds" type="button">숨기기</button></div>
     <button id="toggleHeat" type="button" hidden aria-hidden="true" tabindex="-1" style="display:none"></button>
     <div class="layer"><span class="layer-title"><i class="swatch" style="background:#c48b9f"></i>학교 절대보호구역 50m (개인 검증)</span><button id="toggleSchool50" type="button" aria-pressed="true">숨기기</button></div>
-    <div class="layer"><span class="layer-title"><i class="swatch" style="background:#568ebf"></i>버스정류소 10m</span><button id="toggleBusStops" type="button" aria-pressed="true">숨기기</button></div>
+    <div class="layer"><span class="layer-title"><i class="swatch" style="background:#568ebf"></i>버스정류소 10m <small style="color:#92400e">(주황점=보정 위치)</small></span><button id="toggleBusStops" type="button" aria-pressed="true">숨기기</button></div>
     <details id="busStopDetails" class="bus-stop-compact-list">
       <summary id="busStopSummary">현재 반경 정류소 목록 · 화면 위치 맞추기</summary>
       <p id="busBackupNotice" hidden style="margin:6px 0;color:#92400e;background:#fffbeb;padding:6px;border:1px solid #fde68a;border-radius:7px;line-height:1.45">정류소 원본 파일이 없어 사용자 검토 28곳만 복원했습니다. 이 목록은 전체 정류소가 아닙니다. 서울시 원본 xlsx 또는 GeoJSON을 넣고 실행기를 재시작하면 전체 목록을 우선 적용합니다.</p>
@@ -2024,10 +2024,11 @@ else kakao.maps.load(async function(){
  // This does NOT establish a legally designated no-smoking boundary.
  // Local fallback: ONLY the 28 user-reviewed stops. Complete official dataset is always preferred.
  // The fallback has no station names and is not a legal or complete bus-stop inventory.
- const BUS_ALIGN_KEY='smokespot_bus_stop_visual_positions_public_v11';
+ const BUS_ALIGN_KEY='smokespot_bus_stop_visual_positions_public_v13_reviewed28';
  // User-reviewed reference positions (28 stops). Never overwrite official source coordinates.
- // Public default: 28 positions exported from the user's final local review (v11). Use a fresh namespace so older browser overrides do not silently undo this alignment.
- // Only changes made from v11 onward can override this baseline for the individual visitor.
+ // Public default: the user's final exported 28 locations. v13 uses a clean namespace
+ // so an older saved setting cannot silently replace the latest reviewed baseline.
+ // Visitors can still individually adjust locations; new adjustments remain local to their browsers.
  const BUS_ALIGNMENT_BACKUP={"110000263|11364|127.0749325,37.6508109":[127.07505609239374,37.650785737972186],"110000357|11458|127.0722916,37.6512470":[127.07238509341475,37.65126943292021],"110000258|11359|127.0718008,37.6505400":[127.07181210609386,37.650512957509946],"110000313|11414|127.0768820,37.6497970":[127.07688820862937,37.65000971279936],"110000260|11361|127.0739505,37.6528902":[127.07386527666279,37.652658281191975],"110000248|11349|127.0764226,37.6488502":[127.07649042467212,37.64886347045039],"110000247|11348|127.0769381,37.6517261":[127.07686723310515,37.65164726277844],"110000259|11360|127.0709042,37.6502087":[127.070956339156,37.65028147223136],"110000298|11399|127.0774015,37.6505432":[127.07754034814438,37.650556633084214],"110000299|11400|127.0776284,37.6507368":[127.07750654955211,37.650745861695924],"110000253|11354|127.0736281,37.6477075":[127.07368474022422,37.64770974521803],"110000297|11398|127.0775629,37.6518670":[127.07760414937826,37.65197563899093],"110000254|11355|127.0738318,37.6475069":[127.07380636904924,37.64752496760127],"110000117|11217|127.0707160,37.6524976":[127.07059585261715,37.65252964054843],"110000256|11357|127.0712793,37.6477684":[127.07135057405554,37.64779902589502],"110000312|11413|127.0775774,37.6480879":[127.07748108727709,37.648051939088695],"110000311|11412|127.0774280,37.6478370":[127.0775205597563,37.64787171650287],"110000255|11356|127.0712087,37.6476009":[127.0712427586469,37.64762339930046],"110000116|11216|127.0694249,37.6515821":[127.06943906542374,37.65154375108651],"110000252|11353|127.0741270,37.6465375":[127.07414251865592,37.64656295700637],"110000251|11352|127.0742898,37.6465291":[127.07430681116524,37.646553843805286],"110000246|11347|127.0691543,37.6499131":[127.06908067108007,37.649989766017605],"110000118|11218|127.0715549,37.6540788":[127.07155478496,37.653961624965646],"110000119|11219|127.0718383,37.6542272":[127.07173624849625,37.65411468175977],"110000249|11350|127.0763721,37.6467215":[127.0764148915125,37.64703001841995],"110000278|11379|127.0690665,37.6494835":[127.06904628406224,37.649566324119924],"110000314|11415|127.0767460,37.6467573":[127.07675481382203,37.647016283002216],"110000264|11365|127.0766007,37.6544907":[127.07664353961304,37.654512532658316]};
  let busVisualPositions={...BUS_ALIGNMENT_BACKUP};
  try{
@@ -2321,19 +2322,22 @@ else kakao.maps.load(async function(){
         fillColor:'#9cc8e8',fillOpacity:.19});
      overlays.busStops.push(circle);
      if(corrected){
-       const line=new kakao.maps.Polyline({map:visible.busStops?map:null,
-         path:[new kakao.maps.LatLng(c[1],c[0]),new kakao.maps.LatLng(visual[1],visual[0])],
-         strokeWeight:1,strokeColor:'#64748b',strokeOpacity:.65,strokeStyle:'dash'});
-       const originalDot=new kakao.maps.Circle({map:visible.busStops?map:null,
-         center:new kakao.maps.LatLng(c[1],c[0]),radius:1.8,
-         strokeWeight:1,strokeColor:'#475569',strokeOpacity:.8,fillColor:'#475569',fillOpacity:.55});
-       overlays.busStops.push(line,originalDot);
+       // Kakao basemap POI icons cannot be moved by a website. Instead draw an explicit
+       // reference pin at the reviewed center and calculate the 10m buffer there.
+       // Hide the old-coordinate dot/line by default: it was being mistaken for an uncorrected stop.
+       const reviewedDot=document.createElement('div');
+       reviewedDot.style.cssText='width:13px;height:13px;box-sizing:border-box;border:2px solid white;background:#d97706;border-radius:50%;box-shadow:0 0 0 1.5px #854d0e,0 1px 4px #0005;pointer-events:none';
+       reviewedDot.title='SmokeSpot 사용자 보정 정류소 중심';
+       const reviewedPin=new kakao.maps.CustomOverlay({map:visible.busStops?map:null,
+         position:new kakao.maps.LatLng(visual[1],visual[0]),content:reviewedDot,
+         xAnchor:.5,yAnchor:.5,zIndex:5});
+       overlays.busStops.push(reviewedPin);
      }
      kakao.maps.event.addListener(circle,'click',function(){
        const p=f.properties||{},escape=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
        if(window._smokespotBusInfoWindow)window._smokespotBusInfoWindow.close();
        const content='<div style="padding:9px 12px;min-width:160px;font-size:12px;line-height:1.6"><b>'+escape(p.name||'정류소')+'</b><div>ARS '+escape(p.ars_id||'미확인')+'</div>'+
-         (corrected?'<div>화면 위치 '+Math.round(shift)+'m 보정 · 주황색</div><div>회색 작은 점은 서울시 원본 위치</div>':'<div>서울시 공식 정류소 대표 좌표</div>')+
+         (corrected?'<div>주황색 점이 보정 위치 · '+Math.round(shift)+'m 이동</div><div>카카오 기본지도의 파란 아이콘은 이동되지 않음</div>':'<div>서울시 공식 정류소 대표 좌표</div>')+
          '<div>10m 검토원 · 자동 후보 제외에 동일 좌표 사용 · 법적 확정 경계 아님</div><div>위치 보정은 레이어 목록에서 설정</div></div>';
        window._smokespotBusInfoWindow=new kakao.maps.InfoWindow({position:new kakao.maps.LatLng(visual[1],visual[0]),content,removable:true});
        window._smokespotBusInfoWindow.open(map);
@@ -2345,7 +2349,7 @@ else kakao.maps.load(async function(){
    const sourceFile=busStopMetadata?.source_file||'서울시버스정류소위치정보(20260902).xlsx';
    info.textContent=`${usingBackup?'사용자 검토 정류소 부분 백업 (전체 아님)':'서울시 공식 정류소'} ${busStopFeatures.length.toLocaleString('ko-KR')}개 좌표 로드 · 현재 500m 내부 ${fullyInside}개`+
      (rows.length>fullyInside?` / 원본 중심이 반경 바깥인 ${rows.length-fullyInside}개`:'')+
-     ` · 최종 검토 위치 28곳 기본 제공 · 현재 반경 화면 보정 ${correctedN}개 · 출처 ${sourceFile} · 10m 참고 제외에 보정 위치 반영 (법적 경계 아님)`;
+     ` · 최신 28곳 기본 보정 · 현재 반경 주황색 보정점 ${correctedN}개 · 출처 ${sourceFile} · Kakao 기본지도 파란 정류소 아이콘은 이동 불가 · 10m 참고 제외에 보정점 적용 (법적 확정 경계 아님)`;
    for(const {f,m,shift,corrected} of rows){
      const li=document.createElement('li'),p=f.properties||{};
      li.style.cssText='padding:4px 0;border-bottom:1px solid #cfe5f2;line-height:1.5';
@@ -2371,7 +2375,7 @@ else kakao.maps.load(async function(){
    busVisualPositions={...BUS_ALIGNMENT_BACKUP};
    busSavePositions();busCancelAlignment();renderBusStopsLayer();
    document.getElementById('busStopDetails').open=true;
-   document.getElementById('busRestoreReviewed28').title='직접 검토한 28곳 좌표를 복원했습니다. 지도 10m 원과 후보지 참고 제외에 함께 적용됩니다. 서울시 원본 위치는 유지합니다.';
+   document.getElementById('busRestoreReviewed28').title='최신 28곳 검토 위치를 복원했습니다. 주황색 점과 지도 10m 원, 후보지 참고 제외에 동일하게 적용됩니다. 카카오 바탕지도 정류소 아이콘은 이동되지 않습니다.';
  };
  document.getElementById('busResetAllAlignments').onclick=function(){
    if(!Object.keys(busVisualPositions).length)return;
@@ -2396,7 +2400,11 @@ else kakao.maps.load(async function(){
      busStopFeatures=arr;busStopMetadata=data.metadata||{};busStopState='ready';
      rebuildBusCandidateIndex();
      renderBusStopsLayer();updateSpatialReadyStatus();
-     console.info('SmokeSpot v3.7.23: Seoul bus stops loaded',arr.length,busStopMetadata.source_file);
+     const matched=arr.filter(f=>Object.hasOwn(BUS_ALIGNMENT_BACKUP,busKey(f)));
+     const aligned=matched.filter(f=>busDistanceMeters(f.geometry.coordinates,busDisplayCoord(f))>=.5);
+     window.SmokeSpotBusStatus={version:'v13',loadedStops:arr.length,reviewedMatched:matched.length,reviewedApplied:aligned.length,
+       settingsKey:BUS_ALIGN_KEY,meaning:'Orange dots mark SmokeSpot-reviewed locations; Kakao basemap icons cannot be moved'};
+     console.info('SmokeSpot bus reviewed locations:',window.SmokeSpotBusStatus);
    }catch(err){busStopState=String(err.message||err);busCandidateIndex.clear();console.error('버스정류소 참고 레이어',err);renderBusStopsLayer();updateSpatialReadyStatus();}
  }
  document.getElementById('toggleBusStops').onclick=function(){
