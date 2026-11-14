@@ -1,0 +1,21 @@
+# Generated/runtime artifacts
+node_modules/
+.DS_Store
+__pycache__/
+*.pyc
+*.log
+# Block local/private data and configurations by default.
+*LOCAL_ONLY*
+*local-config*
+*private*
+*.geojson
+*.shp
+*.shx
+*.dbf
+*.prj
+*.gpkg
+*.sqlite
+.env
+.env.*
+*.zip
+*.csv

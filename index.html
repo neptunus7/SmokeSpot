@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f9f6"><meta name="description" content="SmokeSpot 공개 데모: 100% 가상 공간정보로 체험하는 개방형 흡연 지점의 보호 점수·섹터 분석">
+  <title>SmokeSpot — 공개 체험 데모</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<header class="top">
+ <div class="brand"><span class="logo">S<span class="logo-dot">.</span></span><div><b>SmokeSpot</b><small>공간정보 기반 입지 검토</small></div></div>
+ <div class="top-right"><span class="demo-tag">100% 가상 데이터</span><a class="subtle-link" href="./docs/METHODOLOGY.md">분석 방식</a><a class="subtle-link" href="./README.md">프로젝트 소개</a></div>
+</header>
+<div class="workspace">
+ <aside class="sidebar">
+  <div class="eyebrow">탐색 설정 <span>DEMO</span></div>
+  <h1>공간을 먼저 살펴보세요.</h1>
+  <p class="lead">가상의 문제 지역을 선택하고, 비흡연자 보호를 고려한 후보 구역을 비교해요.</p>
+  <section class="form-section"><label for="radius">탐색 반경 <small>가상 단위 · 실제 지도의 미터와 무관</small></label><div class="chips" id="radiusControl"><button type="button" data-radius="50">50</button><button type="button" data-radius="100" class="active">100</button><button type="button" data-radius="200">200</button></div></section>
+  <section class="form-section"><label for="model">점수 방식</label><select id="model"><option value="mixed" selected>지역 비교 반영 · 거리 75% + 지역 비교 25%</option><option value="absolute">고정거리 평가</option></select><p class="micro">75:25는 검증 중인 실험 가설이에요.</p></section>
+  <section class="form-section"><label for="profile">보호 관점</label><select id="profile"><option value="balance">보호 균형 · 35/25/25/15</option><option value="distance">건물·보행 이격 · 45/25/20/10</option><option value="population">인구 노출 회피 · 25/15/40/20</option><option value="custom">사용자 설정 · 직접 배점 변경</option></select></section>
+  <section id="customPanel" class="custom-panel" hidden><div class="custom-head"><b>사용자 설정 · 보호점수 배점</b><small>합계 100점 유지</small></div><p class="micro">원하는 배점을 선택하면 나머지 항목이 자동 조정됩니다. 작은 색상 선은 세 관점의 기준값입니다.</p><div class="tick-legend"><span>🟠 보호 균형</span><span>🔵 건물·보행 이격</span><span>🟣 인구 노출 회피</span></div><div id="customSliders"></div><div class="reset-row"><button type="button" data-preset="balance">보호 균형</button><button type="button" data-preset="distance">건물·보행 이격</button><button type="button" data-preset="population">인구 노출 회피</button></div><p class="micro">아래 버튼은 해당 관점의 배점으로 초기화합니다.</p></section>
+  <label class="penalty-card"><input type="checkbox" id="penaltyEnabled" checked><span><strong>보호시설 가까움 감점</strong><small>가상 보호 경계 밖 10단위 이내 최대 10점 감점</small><small>실제 법정 거리·설치 적합성을 뜻하지 않습니다.</small></span></label>
+  <section class="form-section"><label for="candidateCount">추천 후보 수</label><select id="candidateCount"><option value="0">0곳 · 후보 표시 없음</option><option value="1">1곳</option><option value="2" selected>2곳</option></select></section>
+  <div class="actions"><button id="run" class="primary"><span>◎</span> 영역 분석하기</button><button id="pick" class="secondary">⌖ 중심 바꾸기</button></div>
+  <div class="divider"></div>
+  <div class="summary-top"><h2>분석 요약</h2><span id="status" class="status">준비됨</span></div>
+  <div class="metrics"><div><small>점수 산정 격자</small><strong id="metricCells">—</strong></div><div><small>분석 섹터</small><strong id="metricSectors">—</strong></div></div>
+  <div id="stageInfo" class="stage-hint">영역 분석을 시작하면 섹터를 클릭해 상세 점수와 추천 후보를 볼 수 있어요.</div>
+  <details class="more"><summary>이 점수는 무엇을 의미하나요?</summary><p>건물·보도 이격과 주거·생활인구를 조합한 <b>공간 보호 대리지표</b>예요. 실측 연기 농도, 법적 설치 허가, 흡연자 실제 수요를 예측하지 않습니다.</p><p>도형이 겹친 공간은 타일을 표시하지 않으며 0점으로 취급하지 않아요.</p></details>
+ </aside>
+ <main class="map-shell">
+  <div class="map-top"><div><span class="eyebrow">가상 실험 지도</span><div class="map-title" id="mapTitle">섹터 탐색</div></div><div class="map-actions"><button id="toggleTiles" class="map-btn">▦ 점수 지도 ON</button><button id="back" class="map-btn" hidden>전체 섹터로</button></div></div>
+  <div class="canvas-wrap" id="canvasWrap"><canvas id="mapCanvas" role="img" aria-label="100% 가상 공간 위에 분석 격자와 섹터를 그리는 인터랙티브 지도"></canvas><div class="map-stamp">SYNTHETIC MAP <span>· 실제 지형 아님</span></div><div id="tooltip" class="tooltip" hidden></div><div id="focusHint" class="focus-hint" hidden>지도를 클릭해 분석 중심을 지정하세요 · Esc로 취소</div></div>
+  <div class="map-footer"><div class="legend"><span>보호점수 / 100</span><span class="swatch" style="background:#f1a6a0"></span>0–34 <span class="swatch" style="background:#f3c38f"></span>35–49 <span class="swatch" style="background:#f0d98c"></span>50–64 <span class="swatch" style="background:#93d3bf"></span>65–79 <span class="swatch" style="background:#42b594"></span>80–100</div><span class="legend-note">타일 없음 = 제외·미산정 · 클릭으로 이유 확인</span></div>
+ </main>
+ <aside class="detail" id="detailPane"><div class="eyebrow">분석 상세</div><h2 id="detailTitle">섹터를 선택하세요</h2><p id="detailLead">지도에서 색이 있는 구역을 클릭하면 해당 섹터의 보호 점수를 볼 수 있어요.</p><div id="detailContent"><div class="empty"><span>▥</span><p>섹터·추천 위치의 평가 근거가 여기에 표시됩니다.</p></div></div><p class="detail-footer">자료: 본 페이지 내부의 가상 건물·도로·인구 데이터. 실제 지역 및 사람이 아닙니다.</p></aside>
+</div>
+<footer class="footer"><b>SmokeSpot · Public Demonstration</b><span>개방형 재떨이·표지형 흡연 지점을 가정한 교육·포트폴리오용 시연입니다. 모든 공간정보는 합성 데이터이며 실제 설치 판단에 사용할 수 없습니다.</span></footer>
+<script type="module" src="./js/app.js"></script>
+</body></html>
